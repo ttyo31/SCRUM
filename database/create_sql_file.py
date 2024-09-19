@@ -11,7 +11,7 @@ with open('employeenew.csv', 'r') as csv_file:
     with open('import_data.sql', 'w') as sql_file:
         # Write table creation statement (if needed)
         sql_file.write('''CREATE TABLE IF NOT EXISTS Employee (
-            Staff_ID INT PRIMARY KEY,
+            Staff_ID INT AUTO_INCREMENT PRIMARY KEY,
             Staff_FName VARCHAR(50) NOT NULL,
             Staff_LName VARCHAR(50) NOT NULL,
             Dept VARCHAR(50) NOT NULL,

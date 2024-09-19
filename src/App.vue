@@ -12,6 +12,11 @@
   <v-app>
     <v-main>
       <router-view/>
+      <ul>
+        <li v-for="employee in employees" :key="employee.Staff_ID">
+          {{ employee.staff_fname }} 
+        </li>
+      </ul>
     </v-main>
   </v-app>
 </template>
@@ -26,3 +31,31 @@ export default {
   }),
 }
 </script>
+
+
+<script setup>
+  import { ref, onMounted } from 'vue';
+  import { supabase } from './utils/supabase'
+  const employees = ref([]);
+
+async function getEmployees() {
+  const { data, error } = await supabase.from('employee').select(); // Query the Employee table
+  if (error) {
+    console.error('Error fetching employees:', error.message);
+  } else {
+    employees.value = data;
+  }
+}
+
+onMounted(() => {
+  getEmployees(); // Fetch employees when the component is mounted
+});
+</script>
+<!-- 
+<template>
+<ul>
+  <li v-for="employee in employees" :key="employee.Staff_ID">
+    {{ employee.Staff_FName }} {{ employee.Staff_LName }} - {{ employee.Position }} ({{ employee.Dept }})
+  </li>
+</ul>
+</template> -->

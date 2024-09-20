@@ -7,18 +7,18 @@
     <router-link to="/"><v-tab value="one" class="text-white">Home</v-tab></router-link>
       <router-link to="/about"><v-tab value="one" class="text-white">calendar</v-tab></router-link>
       <v-tab value="three">Item Three</v-tab>
+      <router-link to="/test"><v-tab value="one" class="text-white">Submission Test</v-tab> </router-link>
     </v-tabs>
   </v-card>
   <v-app>
     <v-main>
       <router-view/>
-      <a-card style="width: 300px;">
-        <ul>
+      <!-- this is a sample use case for the supabase retrieval of data -->
+      <!-- <ul>
         <li v-for="manager in managers" :key="manager.id">
           {{ manager.fname }} 
         </li>
-      </ul>
-    </a-card>
+      </ul> -->
       
     </v-main>
   </v-app>

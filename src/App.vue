@@ -1,5 +1,6 @@
 <template>
-  <v-card>
+  <!-- old nav bar code
+    <v-card>
     <v-tabs
       v-model="tab"
       bg-color="primary"
@@ -9,9 +10,10 @@
       <v-tab value="three">Item Three</v-tab>
       <router-link to="/test"><v-tab value="one" class="text-white">Submission Test</v-tab> </router-link>
     </v-tabs>
-  </v-card>
+  </v-card> -->
   <v-app>
     <v-main>
+      <Navbar />
       <router-view/>
       <!-- this is a sample use case for the supabase retrieval of data -->
       <!-- <ul>
@@ -39,6 +41,7 @@ export default {
 <script setup>
   import { ref, onMounted } from 'vue';
   import { supabase } from './utils/supabase'
+  import Navbar from './components/NavBar.vue'
   const employees = ref([]);
   const managers = ref([]);
 

@@ -20,6 +20,16 @@ const routes = [
     path: '/test',
     name: 'test',
     component: SubmissionTest
+  },
+  {
+    path: '/WFHrequestForm',
+    name: 'WFHrequestForm',
+    component: () => import('../views/WFHrequestForm.vue')
+  },
+  {
+    path: '/WFHapplications',
+    name: 'WFHapplications',
+    component: () => import('../views/WFHapplications.vue')
   }
 ]
 

@@ -47,10 +47,6 @@ def add_employee(fname, lname, dept, position, country, email, role):
         return f"Failed to add employee: {e}", 500
 
 
-
-
-
-
 @app.route('/list_employees', methods=['GET'])
 def list_employees():
     try:

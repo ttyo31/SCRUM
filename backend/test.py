@@ -60,7 +60,23 @@ def approve_application():
         .execute()
 
     if response.data:
-        return jsonify({"success": True, "message": "Application approved successfully"}), 200
+        # Add a new entry to the staff_wfh table
+        staff_wfh_response = supabase.table('staff_wfh').insert({
+            "id": staff_id,
+            "wfh_date": wfh_date
+        }).execute()
+
+        supabase.table('applications').delete() \
+        .eq("staff_id", staff_id) \
+        .eq("mgr_id", mgr_id) \
+        .eq("wfh_date", wfh_date) \
+        .execute()
+
+        if staff_wfh_response.data:
+            return jsonify({"success": True, "message": "Application approved and entry added to staff_wfh."}), 200
+        
+        return jsonify({"error": "Application approved, but failed to add entry to staff_wfh."}), 500
+    
     return jsonify({"error": "Failed to approve application"}), 500
 
 @app.route('/reject_application', methods=['POST'])
@@ -70,16 +86,17 @@ def reject_application():
     mgr_id = data['mgr_id']
     wfh_date = data['wfh_date']
 
-    # Update the application approval status in Supabase
-    response = supabase.table('applications').update({"approval": 2}) \
+    # Delete the application from the applications table
+    response = supabase.table('applications').delete() \
         .eq("staff_id", staff_id) \
         .eq("mgr_id", mgr_id) \
         .eq("wfh_date", wfh_date) \
         .execute()
 
     if response.data:
-        return jsonify({"success": True, "message": "Application approved successfully"}), 200
-    return jsonify({"error": "Failed to approve application"}), 500
+        return jsonify({"success": True, "message": "Application rejected and entry deleted."}), 200
+    
+    return jsonify({"error": "Failed to reject application"}), 500
 
 
 if __name__ == '__main__':

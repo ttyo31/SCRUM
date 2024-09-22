@@ -5,9 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from supabase import create_client, Client  
 from dotenv import load_dotenv
 from datetime import datetime
+from flask import Flask
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+
+CORS(app)
 # app.config.from_object(Config)
 # db = SQLAlchemy(app)
 load_dotenv()
@@ -82,20 +86,10 @@ def list_employees():
         return f"Error retrieving employees: {e}", 500
     
 
-@app.route('/WFHapplications/<mgr_id>', methods=['GET'])
-def get_applications(mgr_id):
-    '''
-    Returns existing WFH applications under a particular manager ID
-    '''
-    response = supabase.table('applications').select("*").eq("mgr_id", mgr_id).execute()
-    if response.data:
-        return jsonify(response.data), 200
-    return jsonify({"error": "No applications found"}), 404
-
 @app.route('/sendrequest/<int:staff_id>',methods=['POST'])
 def send_request(staff_id):
     date = request.get_json()
-    application_date = datetime.strptime(date["date"],'%Y-%m-%d')
+    application_date = datetime.fromisoformat(date["date"])
     employee = Employee.query.filter_by(Staff_ID=staff_id).first()
     if not employee:
         return jsonify({'success': False, 'message': 'Employee not found'}), 404
@@ -120,4 +114,4 @@ def send_request(staff_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=5001)

@@ -51,6 +51,7 @@ async function fetchApplications(mgr_id) {
 
 async function approveApplication(item) {
   try {
+    console.log("Approve")
     const response = await fetch('http://localhost:5000/approve_application', {
       method: 'POST',
       headers: {

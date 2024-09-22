@@ -36,7 +36,7 @@ async function fetchApplications(staff_id) {
 }
 
 onMounted(() => {
-  const staff_id = 150008;  // Replace with the actual manager ID you want to fetch
+  const staff_id = 140001;  // Replace with the actual manager ID you want to fetch
   fetchApplications(staff_id);
 });
 </script>

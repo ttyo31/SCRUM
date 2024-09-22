@@ -10,9 +10,13 @@
         <router-link to="/about">
           <v-tab value="two" class="text-white">Calendar</v-tab>
         </router-link>
+
+        <router-link to="/TeamSchedule">
+          <v-tab value="three" class="text-white">Team Schedule</v-tab>
+        </router-link>
         
         <router-link to="/test">
-          <v-tab value="three" class="text-white">Submission Test</v-tab>
+          <v-tab value="four" class="text-white">Submission Test</v-tab>
         </router-link>
         
         <v-menu

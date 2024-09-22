@@ -35,6 +35,11 @@ const routes = [
     path: '/WFHapplicationsStaff',
     name: 'WFHapplicationsStaff',
     component: () => import('../views/WFHapplicationsStaff.vue')
+  },
+  {
+    path: '/TeamSchedule',
+    name: 'TeamSchedule',
+    component: () => import('../views/TeamSchedule.vue')
   }
 ]
 

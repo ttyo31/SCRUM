@@ -49,6 +49,63 @@ async function fetchApplications(mgr_id) {
   }
 }
 
+async function approveApplication(item) {
+  try {
+    const response = await fetch('http://localhost:5000/approve_application', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        staff_id: item.staff_id,
+        mgr_id: item.mgr_id,
+        wfh_date: item.wfh_date,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.success) {
+      // Optionally, you can refresh the list of applications after approval
+      fetchApplications(item.mgr_id);
+    }
+  } catch (error) {
+    console.error("Error approving application:", error);
+  }
+}
+
+async function rejectApplication(item) {
+  try {
+    const response = await fetch('http://localhost:5000/reject_application', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        staff_id: item.staff_id,
+        mgr_id: item.mgr_id,
+        wfh_date: item.wfh_date,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.success) {
+      // Optionally, you can refresh the list of applications after approval
+      fetchApplications(item.mgr_id);
+    }
+  } catch (error) {
+    console.error("Error approving application:", error);
+  }
+}
+
+
 onMounted(() => {
   const mgr_id = 130002;
   fetchApplications(mgr_id);

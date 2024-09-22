@@ -37,9 +37,13 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive} from 'vue';
 import { supabase } from '../utils/supabase';
 import { useRouter } from 'vue-router'; 
+import useUser from '../utils/useUser';
+
+// Get access to fname, lname, and fetchStaffDetails from composable
+const { fetchStaffDetails } = useUser();
 
 // Reactive form state for login
 const formState = reactive({
@@ -51,37 +55,17 @@ const formState = reactive({
 // Router for navigation
 const router = useRouter();
 
-// Reactive references for staff details
-const fname = ref('');
-const lname = ref('');
-
 // Handle login form submission
 const onFinish = async () => {
   const { email, password } = formState;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (data.user) {
-    await fetchStaffDetails(data.user); 
-    // Route to the homepage after fetching staff details
+    await fetchStaffDetails(data.user.email); 
+    // as of now route to the homepage first
     router.push('/home');
   } else if (error) {
     console.error('Login error:', error.message);
-  }
-};
-
-// Fetch staff details by email and store fname and lname
-const fetchStaffDetails = async (user) => {
-  const { data, error } = await supabase
-    .from('staff')
-    .select('*')
-    .eq('mail', user.email); // Assuming 'mail' column is used for the email
-
-  if (data && data.length > 0) {
-    console.log('Staff details:', data[0]);
-    fname.value = data[0].fname;
-    lname.value = data[0].lname;
-  } else if (error) {
-    console.error('Error fetching staff details:', error);
   }
 };
 

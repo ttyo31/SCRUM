@@ -8,7 +8,7 @@
     >
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Applications List</v-toolbar-title>
+          <v-toolbar-title>Staff Applications List</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
         </v-toolbar>
       </template>
@@ -22,9 +22,9 @@ import { ref, onMounted } from 'vue';
 
 const items = ref([]);
 
-async function fetchApplications(mgr_id) {
+async function fetchApplications(staff_id) {
   try {
-    const response = await fetch(`http://localhost:5000/WFHapplications/${mgr_id}`);
+    const response = await fetch(`http://localhost:5000/WFHapplicationsStaff/${staff_id}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -36,7 +36,7 @@ async function fetchApplications(mgr_id) {
 }
 
 onMounted(() => {
-  const mgr_id = 130002;  // Replace with the actual manager ID you want to fetch
-  fetchApplications(mgr_id);
+  const staff_id = 150008;  // Replace with the actual manager ID you want to fetch
+  fetchApplications(staff_id);
 });
 </script>

@@ -27,9 +27,14 @@ const routes = [
     component: () => import('../views/WFHrequestForm.vue')
   },
   {
-    path: '/WFHapplications',
-    name: 'WFHapplications',
-    component: () => import('../views/WFHapplications.vue')
+    path: '/WFHapplicationsManager',
+    name: 'WFHapplicationsManager',
+    component: () => import('../views/WFHapplicationsManager.vue')
+  },
+  {
+    path: '/WFHapplicationsStaff',
+    name: 'WFHapplicationsStaff',
+    component: () => import('../views/WFHapplicationsStaff.vue')
   }
 ]
 

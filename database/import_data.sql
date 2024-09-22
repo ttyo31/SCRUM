@@ -1,7 +1,5 @@
-CREATE DATABASE IF NOT EXISTS DB_SPM ;
-
 CREATE TABLE IF NOT EXISTS Employee (
-            Staff_ID INT PRIMARY KEY,
+            Staff_ID INT AUTO_INCREMENT PRIMARY KEY,
             Staff_FName VARCHAR(50) NOT NULL,
             Staff_LName VARCHAR(50) NOT NULL,
             Dept VARCHAR(50) NOT NULL,
@@ -11,12 +9,8 @@ CREATE TABLE IF NOT EXISTS Employee (
             Reporting_Manager INT,
             Role INT NOT NULL
         );
-        
-INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (130002, 'Jack', 'Sim', 'CEO', 'MD', 'Singapore', 'jack.sim@allinone.com.sg', null, '1');
-UPDATE Employee
-SET Reporting_Manager = 130002
-WHERE Staff_ID = 130002;
 
+INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (130002, 'Jack', 'Sim', 'CEO', 'MD', 'Singapore', 'jack.sim@allinone.com.sg', 130002, 1);
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (140001, 'Derek', 'Tan', 'Sales', 'Director', 'Singapore', 'Derek.Tan@allinone.com.sg', 130002, 1);
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (150008, 'Eric', 'Loh', 'Solutioning', 'Director', 'Singapore', 'Eric.Loh@allinone.com.sg', 130002, 1);
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (151408, 'Philip', 'Lee', 'Engineering', 'Director', 'Singapore', 'Philip.Lee@allinone.com.sg', 130002, 1);
@@ -570,5 +564,3 @@ INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Countr
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (210042, 'Naron', 'Savoeun', 'IT', 'IT Team', 'Singapore', 'Naron.Savoeun@allinone.com.sg', 210001, 2);
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (210043, 'Phuc', 'Luon', 'IT', 'IT Team', 'Singapore', 'Phuc.Luon@allinone.com.sg', 210001, 2);
 INSERT INTO Employee (Staff_ID, Staff_FName, Staff_LName, Dept, Position, Country, Email, Reporting_Manager, Role) VALUES (210044, 'Chandara', 'Tithe', 'IT', 'IT Team', 'Singapore', 'tithe.chandra@allinone.com.sg', 210001, 2);
-
-SELECT * FROM Employee

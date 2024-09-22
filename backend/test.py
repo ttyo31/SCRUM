@@ -22,4 +22,30 @@ supabase: Client = create_client(url, key)
 #     response = supabase.table('staff').select('fname').execute()
 #     return response.data
 
-# print(getStaff())
+
+@app.route('/WFHapplicationsManager/<mgr_id>', methods=['GET'])
+def get_applications_manager(mgr_id):
+    '''
+    Returns existing WFH applications under a particular manager ID
+    '''
+    response = supabase.table('applications').select("*").eq("mgr_id", mgr_id).execute()
+    if response.data:
+        return jsonify(response.data), 200
+    return jsonify({"error": "No applications found"}), 404
+
+
+
+@app.route('/WFHapplicationsStaff/<staff_id>', methods=['GET'])
+def get_applications_staff(staff_id):
+    '''
+    Returns existing WFH applications under a particular manager ID
+    '''
+    response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
+    if response.data:
+        return jsonify(response.data), 200
+    return jsonify({"error": "No applications found"}), 404
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+

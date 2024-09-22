@@ -42,8 +42,13 @@
               </router-link>
             </v-list-item>
             <v-list-item>
-              <router-link to="/WFHapplications">
-                <v-list-item-title>Application Summary</v-list-item-title>
+              <router-link to="/WFHapplicationsManager">
+                <v-list-item-title>Manager Application Summary</v-list-item-title>
+              </router-link>
+            </v-list-item>
+            <v-list-item>
+              <router-link to="/WFHapplicationsStaff">
+                <v-list-item-title>Staff Application Summary</v-list-item-title>
               </router-link>
             </v-list-item>
           </v-list>

@@ -23,16 +23,3 @@ supabase: Client = create_client(url, key)
 #     return response.data
 
 # print(getStaff())
-
-@app.route('/WFHapplications/<mgr_id>', methods=['GET'])
-def get_applications(mgr_id):
-    '''
-    Returns existing WFH applications under a particular manager ID
-    '''
-    response = supabase.table('applications').select("*").eq("mgr_id", mgr_id).execute()
-    if response.data:
-        return jsonify(response.data), 200
-    return jsonify({"error": "No applications found"}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)

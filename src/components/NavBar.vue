@@ -3,7 +3,7 @@
       <v-toolbar-title class="text-white">WFH SYSTEM</v-toolbar-title>
       
       <v-tabs v-model="tab" class="ml-auto" background-color="transparent" slider-color="white">
-        <router-link to="/">
+        <router-link to="/home">
           <v-tab value="one" class="text-white">Home</v-tab>
         </router-link>
         
@@ -15,10 +15,6 @@
           <v-tab value="three" class="text-white">Submission Test</v-tab>
         </router-link>
         
-        <router-link to="/login">
-          <v-tab value="four" class="text-white">login Test</v-tab>
-        </router-link>
-
         <v-menu
           v-model="dropdownVisible"
           offset-y

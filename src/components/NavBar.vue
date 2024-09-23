@@ -10,6 +10,10 @@
         <router-link to="/about">
           <v-tab value="two" class="text-white">Calendar</v-tab>
         </router-link>
+
+        <router-link to="/TeamSchedule">
+          <v-tab value="three" class="text-white">Team Schedule</v-tab>
+        </router-link>
         
         <v-menu
           v-model="dropdownVisible"
@@ -38,8 +42,13 @@
               </router-link>
             </v-list-item>
             <v-list-item>
-              <router-link to="/WFHapplications">
-                <v-list-item-title>Application Summary</v-list-item-title>
+              <router-link to="/WFHapplicationsManager">
+                <v-list-item-title>Manager Application Summary</v-list-item-title>
+              </router-link>
+            </v-list-item>
+            <v-list-item>
+              <router-link to="/WFHapplicationsStaff">
+                <v-list-item-title>Staff Application Summary</v-list-item-title>
               </router-link>
             </v-list-item>
           </v-list>

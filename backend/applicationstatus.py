@@ -99,6 +99,36 @@ def reject_application():
     return jsonify({"error": "Failed to reject application"}), 500
 
 
+
+#IMPORTANT: This is only meant for Managers. If user is Staff, need to write another function to query
+@app.route('/api/wfh_events/<int:mgr_id>', methods=['GET'])
+def get_wfh_events(mgr_id):
+    # Query staff where mgr_id matches
+    staff_query = supabase.table("staff").select("id, fname, lname").eq("mgr_id", mgr_id).execute()
+    staff_data = staff_query.data
+
+    if not staff_data:
+        return jsonify({"error": "No staff found for this manager"}), 404
+
+    staff_ids = [staff['id'] for staff in staff_data]
+
+    # Query staff_wfh based on staff IDs
+    wfh_query = supabase.table("staff_wfh").select("id, wfh_date").in_("id", staff_ids).execute()
+
+    # Merge the data from staff and staff_wfh
+    wfh_events = []
+    for wfh in wfh_query.data:
+        staff_info = next((staff for staff in staff_data if staff['id'] == wfh['id']), None)
+        if staff_info:
+            wfh_events.append({
+                "fname": staff_info['fname'],
+                "lname": staff_info['lname'],
+                "wfh_date": wfh["wfh_date"]
+            })
+
+
+    return jsonify(wfh_events)
+
 if __name__ == '__main__':
     app.run(debug=True)
 

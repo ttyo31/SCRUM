@@ -11,10 +11,6 @@
           <v-tab value="two" class="text-white">Calendar</v-tab>
         </router-link>
         
-        <router-link to="/test">
-          <v-tab value="three" class="text-white">Submission Test</v-tab>
-        </router-link>
-        
         <v-menu
           v-model="dropdownVisible"
           offset-y
@@ -24,7 +20,7 @@
         >
           <template #activator="{ props }">
             <v-tab
-              value="four"
+              value="three"
               class="text-white"
               v-bind="props"
             >

@@ -25,6 +25,8 @@ const routes = [
     path: '/',
     name: 'login',
     component: LoginView
+  },
+  {
     path: '/WFHapplicationsManager',
     name: 'WFHapplicationsManager',
     component: () => import('../views/WFHapplicationsManager.vue')

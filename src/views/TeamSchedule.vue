@@ -24,10 +24,10 @@ const today = ref([new Date()])
 const events = ref([])
 
 // Fetch WFH events from Flask backend for a specific manager
-async function fetchStaffEvents(mgr_id) {
+async function fetchStaffEvents(id) {
   try {
-    const response = await axios.get(`http://localhost:5000/api/wfh_events/${mgr_id}`)
-    
+    const response = await axios.get(`http://localhost:5000/api/wfh_events/${id}`)
+
     // Transform the response data into a format suitable for the calendar
     events.value = response.data.map(event => ({
       title: `${event.fname} ${event.lname}`,
@@ -41,9 +41,9 @@ async function fetchStaffEvents(mgr_id) {
   }
 }
 
-// On component mount, fetch the events for a specific manager (e.g., mgr_id = 1)
+// On component mount, fetch the events for a specific department (e.g., id = "140003")
 onMounted(() => {
-  const mgr_id = 130002;  // Set this to the actual manager ID you're querying for
-  fetchStaffEvents(mgr_id)
+  const id = 140003;  // Set id
+  fetchStaffEvents(id)
 })
 </script>

@@ -9,7 +9,7 @@
           <v-row style="padding: 0%;"> 
             <v-col cols="9">
               <v-card class="white pa-4">
-                <v-card-title class="text-blue" style="font-size: 100px;">Welcome, XXX</v-card-title>
+                <v-card-title class="text-blue" style="font-size: 100px;">Welcome, {{ fname }} {{ lname }}</v-card-title>
       
                 <v-card-subtitle class="text-blue" style="font-size: 30px;">You are currently working from XXX</v-card-subtitle>
                 <br>
@@ -58,4 +58,12 @@ export default defineComponent({
   components: {
   },
 });
+</script>
+
+<script setup>
+import useUser from '../utils/useUser';
+
+// Use the composable to access fname and lname
+const { fname, lname } = useUser();
+
 </script>

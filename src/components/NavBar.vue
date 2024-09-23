@@ -3,7 +3,7 @@
       <v-toolbar-title class="text-white">WFH SYSTEM</v-toolbar-title>
       
       <v-tabs v-model="tab" class="ml-auto" background-color="transparent" slider-color="white">
-        <router-link to="/">
+        <router-link to="/home">
           <v-tab value="one" class="text-white">Home</v-tab>
         </router-link>
         
@@ -15,10 +15,6 @@
           <v-tab value="three" class="text-white">Team Schedule</v-tab>
         </router-link>
         
-        <router-link to="/test">
-          <v-tab value="four" class="text-white">Submission Test</v-tab>
-        </router-link>
-        
         <v-menu
           v-model="dropdownVisible"
           offset-y
@@ -28,7 +24,7 @@
         >
           <template #activator="{ props }">
             <v-tab
-              value="four"
+              value="three"
               class="text-white"
               v-bind="props"
             >

@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import SubmissionTest from '@/views/SubmissionTest.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: HomeView
   },
@@ -17,16 +17,14 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   }, 
   {
-    path: '/test',
-    name: 'test',
-    component: SubmissionTest
-  },
-  {
     path: '/WFHrequestForm',
     name: 'WFHrequestForm',
     component: () => import('../views/WFHrequestForm.vue')
   },
   {
+    path: '/',
+    name: 'login',
+    component: LoginView
     path: '/WFHapplicationsManager',
     name: 'WFHapplicationsManager',
     component: () => import('../views/WFHapplicationsManager.vue')

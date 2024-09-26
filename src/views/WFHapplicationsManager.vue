@@ -33,6 +33,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import useUser from '../utils/useUser';
+
+// Use the composable to access user details
+const { id } = useUser();
+console.log(id);
 
 const items = ref([]);
 
@@ -108,7 +113,7 @@ async function rejectApplication(item) {
 
 
 onMounted(() => {
-  const mgr_id = 130002;
+  const mgr_id = id.value;
   fetchApplications(mgr_id);
 });
 

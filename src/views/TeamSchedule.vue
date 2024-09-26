@@ -19,14 +19,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import useUser from '../utils/useUser';
+
+// Use the composable to access user details
+const { id } = useUser();
 
 const today = ref([new Date()])
 const events = ref([])
 
 // Fetch WFH events from Flask backend for a specific manager
-async function fetchStaffEvents(id) {
+async function fetchStaffEvents(userID) {
   try {
-    const response = await axios.get(`http://localhost:5000/api/wfh_events/${id}`)
+    const response = await axios.get(`http://localhost:5000/api/wfh_events/${userID}`)
 
     // Transform the response data into a format suitable for the calendar
     events.value = response.data.map(event => ({
@@ -43,7 +47,7 @@ async function fetchStaffEvents(id) {
 
 // On component mount, fetch the events for a specific department (e.g., id = "140003")
 onMounted(() => {
-  const id = 140003;  // Set id
-  fetchStaffEvents(id)
+  const userID = id.value;  // Set id
+  fetchStaffEvents(userID)
 })
 </script>

@@ -100,10 +100,10 @@ def reject_application():
 
 
 
-@app.route('/api/wfh_events/<int:id>', methods=['GET'])
-def get_wfh_events(id):
+@app.route('/api/wfh_events/<int:userID>', methods=['GET'])
+def get_wfh_events(userID):
     #Returns department staff on WFH
-    dept = supabase.table("staff").select("dept").eq("id", id).execute().data
+    dept = supabase.table("staff").select("dept").eq("id", userID).execute().data
 
     staff_query = supabase.table("staff").select("id, fname, lname", "dept").eq("dept", dept[0]["dept"]).execute()
     staff_data = staff_query.data

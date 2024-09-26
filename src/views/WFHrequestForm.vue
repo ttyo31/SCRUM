@@ -16,7 +16,7 @@
           </div>
         </v-col>
 
-        <!-- input Staff ID -->
+        <!-- input Staff ID
         <v-col cols="12" md="5">
           <div class="centering ma-16 mr-16">
           <v-text-field
@@ -26,7 +26,7 @@
             required
           ></v-text-field>
           </div>
-        </v-col>
+        </v-col> -->
 
         <v-col cols="12" md="1"></v-col>
       </v-row>
@@ -61,53 +61,50 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { supabase } from '../utils/supabase';
+import useUser from '../utils/useUser';
+
+// Access the user data from the composable
+const { id, mgr_id } = useUser();
 
 const formData = ref({
   staff_id: null,
   wfh_date: null,
 });
+
 const dialog = ref(false);
 const dialogMessage = ref('');
 const successDialog = ref(false);
 const menu = ref(false);
 const valid = ref(true);
 
+// Prefill staff_id and mgr_id from useUser
+onMounted(() => {
+  formData.value.staff_id = id.value;
+});
+
 const onSubmit = async () => {
   if (!valid.value) return;
 
   try {
-    const { data: staffData, error: staffError } = await supabase
-      .from('staff')
-      .select('mgr_id')
-      .eq('id', formData.value.staff_id)
-      .single();
-
-    if (staffError || !staffData) {
-      showDialog('Error fetching manager ID or staff not found');
-      return;
-    }
-
-    const mgr_id = staffData.mgr_id;
+    // Since mgr_id is available from useUser.js, no need to fetch from Supabase again
+    const applicationData = {
+      staff_id: formData.value.staff_id,
+      mgr_id: mgr_id.value,  // Use the manager ID from useUser.js
+      wfh_date: formData.value.wfh_date,
+      approval: 0, // Default approval status is pending
+    };
 
     const { error: applicationError } = await supabase
       .from('applications')
-      .insert([
-        {
-          staff_id: formData.value.staff_id,
-          mgr_id: mgr_id,
-          wfh_date: formData.value.wfh_date,
-          approval: 0,
-        }
-      ]);
+      .insert([applicationData]);
 
     if (applicationError) {
       showDialog('Error submitting application: ' + applicationError.message);
     } else {
       successDialog.value = true;
-      formData.value.staff_id = null;
-      formData.value.wfh_date = null;
+      formData.value.wfh_date = null; // Reset the date picker
     }
   } catch (err) {
     showDialog('An unexpected error occurred: ' + err.message);

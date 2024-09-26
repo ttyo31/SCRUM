@@ -40,6 +40,11 @@ const routes = [
     path: '/TeamSchedule',
     name: 'TeamSchedule',
     component: () => import('../views/TeamSchedule.vue')
+  },
+  {
+    path: '/OverallSchedule',
+    name: 'OverallSchedule',
+    component: () => import('../views/OverallSchedule.vue')
   }
 ]
 

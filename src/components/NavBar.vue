@@ -14,6 +14,10 @@
         <router-link to="/TeamSchedule">
           <v-tab value="three" class="text-white">Team Schedule</v-tab>
         </router-link>
+
+        <router-link to="/OverallSchedule">
+          <v-tab value="four" class="text-white">Overall Schedule</v-tab>
+        </router-link>
         
         <v-menu
           v-model="dropdownVisible"

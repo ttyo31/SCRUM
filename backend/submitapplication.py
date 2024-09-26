@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from flask import Flask
 from flask_cors import CORS
+from flask_mail import Mail, Message
 
 
 app = Flask(__name__)
@@ -16,6 +17,19 @@ CORS(app)
 # db = SQLAlchemy(app)
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+
+## Mail Settings
+app.config['MAIL_SERVER'] = 'your_mail_server'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'your_username'
+app.config['MAIL_PASSWORD'] = 'your_password'
+app.config['MAIL_DEFAULT_SENDER'] = 'your_email@example.com'
+
+mail = Mail(app)
+##
+
 db = SQLAlchemy(app)
 
 class Manager(db.Model):
@@ -106,6 +120,16 @@ def send_request(staff_id):
     try:
         db.session.commit()
         print(new_application)  # This will use the __repr__ method to print the object
+
+        ## Notifcation to Manager
+        manager_email = Employee.query.filter_by(Staff_ID=reporting_manager).first().email
+        msg = Message(
+            "Hello",
+            recipients=[manager_email],
+            body="This is a test mail sent from Flask-Mail"
+        )
+        mail.send(msg)
+        ##
         return jsonify({'success': True, 'message': 'Application successfully added', 'application': str(new_application)}), 201
     except Exception as e:
         db.session.rollback()

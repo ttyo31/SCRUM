@@ -127,6 +127,42 @@ def get_wfh_events(id):
 
     return jsonify(wfh_events)
 
+
+@app.route('/api/all_wfh_events', methods=['GET'])
+def all_wfh_events():
+    try:
+        # Fetch all staff members
+        staff_query = supabase.table("staff").select("id, fname, lname, dept").execute()
+        staff_data = staff_query.data
+        if not staff_data:
+            return jsonify({"error": "No staff found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Error fetching staff: {str(e)}"}), 500
+
+    # Extract all staff IDs
+    staff_ids = [staff['id'] for staff in staff_data]
+
+    # Query WFH events for all staff
+    try:
+        wfh_query = supabase.table("staff_wfh").select("id, wfh_date").in_("id", staff_ids).execute()
+        wfh_data = wfh_query.data
+    except Exception as e:
+        return jsonify({"error": f"Error fetching WFH events: {str(e)}"}), 500
+
+    # Merge staff data with WFH events
+    wfh_events = []
+    for wfh in wfh_data:
+        staff_info = next((staff for staff in staff_data if staff['id'] == wfh['id']), None)
+        if staff_info:
+            wfh_events.append({
+                "fname": staff_info['fname'],
+                "lname": staff_info['lname'],
+                "wfh_date": wfh["wfh_date"],
+                "dept": staff_info['dept']
+            })
+
+    return jsonify(wfh_events), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
 

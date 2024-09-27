@@ -2,13 +2,13 @@ import { ref } from 'vue';
 import { supabase } from '../utils/supabase';
 
 // Create reactive variables for user data
-const fname = ref('');
-const lname = ref('');
-const id = ref(null);
-const mail = ref('');
-const mgr_id = ref(null);
-const dept = ref('');
-const role = ref(null);
+const fname = ref(localStorage.getItem('fname') || '');
+const lname = ref(localStorage.getItem('lname') || '');
+const id = ref(localStorage.getItem('id') || null);
+const mail = ref(localStorage.getItem('mail') || '');
+const mgr_id = ref(localStorage.getItem('mgr_id') || null);
+const dept = ref(localStorage.getItem('dept') || '');
+const role = ref(localStorage.getItem('role') || null);
 
 // Function to fetch user data
 const fetchStaffDetails = async (email) => {
@@ -17,21 +17,42 @@ const fetchStaffDetails = async (email) => {
     .select('*')
     .eq('mail', email);
 
-
   if (data && data.length > 0) {
-    // Populate reactive variables with user data
-    id.value = data[0].id;
-    fname.value = data[0].fname;
-    lname.value = data[0].lname;
-    mail.value = data[0].mail;
-    mgr_id.value = data[0].mgr_id;
-    dept.value = data[0].dept;
-    role.value = data[0].role;
+    const userData = data[0];
 
-    console.log('Staff details:', data[0]);
+    // Store in reactive variables and localStorage
+    id.value = userData.id;
+    fname.value = userData.fname;
+    lname.value = userData.lname;
+    mail.value = userData.mail;
+    mgr_id.value = userData.mgr_id;
+    dept.value = userData.dept;
+    role.value = userData.role;
+
+    // Store in localStorage
+    localStorage.setItem('id', userData.id);
+    localStorage.setItem('fname', userData.fname);
+    localStorage.setItem('lname', userData.lname);
+    localStorage.setItem('mail', userData.mail);
+    localStorage.setItem('mgr_id', userData.mgr_id);
+    localStorage.setItem('dept', userData.dept);
+    localStorage.setItem('role', userData.role);
+
+    console.log('Staff details:', userData);
   } else if (error) {
     console.error('Error fetching staff details:', error);
   }
+};
+
+// Function to clear data from localStorage (e.g., during logout)
+const clearUserData = () => {
+  localStorage.removeItem('id');
+  localStorage.removeItem('fname');
+  localStorage.removeItem('lname');
+  localStorage.removeItem('mail');
+  localStorage.removeItem('mgr_id');
+  localStorage.removeItem('dept');
+  localStorage.removeItem('role');
 };
 
 // Create a composable for user details
@@ -44,7 +65,8 @@ const useUser = () => {
     mgr_id,
     dept,
     role,
-    fetchStaffDetails
+    fetchStaffDetails,
+    clearUserData
   };
 };
 

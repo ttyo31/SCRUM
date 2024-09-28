@@ -14,11 +14,14 @@
       </template>
 
       <!-- Custom row template -->
+      <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr>
           <td>{{ item.approval }}</td>
-          <td>{{ item.mgr_id }}</td>
-          <td>{{ item.staff_id }}</td>
+          <!-- Display the manager name with the ID -->
+          <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
+          <!-- Display the staff name with the ID -->
+          <td>{{ item.staff_id }} {{ item.staff_name }}</td>
           <td>{{ item.wfh_date }}</td>
           <td>
             <v-btn small color="success" @click="approveApplication(item)">Approve</v-btn>
@@ -48,6 +51,7 @@ async function fetchApplications(mgr_id) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    
     items.value = data;
   } catch (error) {
     console.error("Error fetching applications:", error);
@@ -57,14 +61,17 @@ async function fetchApplications(mgr_id) {
 async function approveApplication(item) {
   try {
     console.log("Approve")
+    // Strip the names from staff_id and mgr_id, only send the IDs
+    const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
+    const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
     const response = await fetch('http://localhost:5000/approve_application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        staff_id: item.staff_id,
-        mgr_id: item.mgr_id,
+        staff_id: staff_id,
+        mgr_id: mgr_id,
         wfh_date: item.wfh_date,
       }),
     });
@@ -76,7 +83,7 @@ async function approveApplication(item) {
     const result = await response.json();
     if (result.success) {
       // Optionally, you can refresh the list of applications after approval
-      fetchApplications(item.mgr_id);
+      fetchApplications(mgr_id);
     }
   } catch (error) {
     console.error("Error approving application:", error);
@@ -85,14 +92,17 @@ async function approveApplication(item) {
 
 async function rejectApplication(item) {
   try {
+    // Strip the names from staff_id and mgr_id, only send the IDs
+    const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
+    const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
     const response = await fetch('http://localhost:5000/reject_application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        staff_id: item.staff_id,
-        mgr_id: item.mgr_id,
+        staff_id: staff_id,
+        mgr_id: mgr_id,
         wfh_date: item.wfh_date,
       }),
     });
@@ -104,7 +114,7 @@ async function rejectApplication(item) {
     const result = await response.json();
     if (result.success) {
       // Optionally, you can refresh the list of applications after approval
-      fetchApplications(item.mgr_id);
+      fetchApplications(mgr_id);
     }
   } catch (error) {
     console.error("Error approving application:", error);

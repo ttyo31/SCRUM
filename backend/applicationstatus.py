@@ -27,18 +27,58 @@ supabase: Client = create_client(url, key)
 def get_applications_manager(mgr_id):
     '''
     Returns existing WFH applications under a particular manager ID
-    where approval is pending (approval == 0).
+    where approval is pending (approval == 0), along with the manager and staff names.
     '''
-    response = supabase.table('applications')\
-        .select("*")\
-        .eq("mgr_id", mgr_id)\
-        .eq("approval", 0)\
-        .execute()
+    try:
+        # Fetch pending applications for the given manager
+        response = supabase.table('applications')\
+            .select("*")\
+            .eq("mgr_id", mgr_id)\
+            .eq("approval", 0)\
+            .execute()
+
+        if not response.data:
+            return jsonify({"error": "No pending applications found"}), 404
+
+        applications = response.data
+        
+        # Create a set of unique staff IDs and include manager ID
+        staff_ids = {app['staff_id'] for app in applications}
+
+        # Query employee table for staff names
+        staff_response = supabase.table('employee')\
+            .select("staff_id, staff_fname, staff_lname")\
+            .in_("staff_id", list(staff_ids))\
+            .execute()
+
+        # Query employee table for manager names
+        manager_response = supabase.table('employee')\
+            .select("staff_id, staff_fname, staff_lname")\
+            .eq("staff_id", mgr_id)\
+            .execute()
+
+        if not staff_response.data or not manager_response.data:
+            return jsonify({"error": "No employee data found"}), 404
+
+        # Combine employee names into a dictionary
+        staff_data = {emp['staff_id']: f"{emp['staff_fname']} {emp['staff_lname']}" for emp in staff_response.data}
+
+        # Extract the manager's name
+        manager_name = f"{manager_response.data[0]['staff_fname']} {manager_response.data[0]['staff_lname']}"
+
+
+        for app in applications:
+            # Update staff_id to "id (name)"
+            app['staff_id'] = f"{app['staff_id']} ({staff_data.get(app['staff_id'], 'Unknown')})"
     
-    if response.data:
-        return jsonify(response.data), 200
-    
-    return jsonify({"error": "No pending applications found"}), 404
+            # Update mgr_id to "id (name)"
+            app['mgr_id'] = f"{mgr_id} ({manager_name})"
+
+        
+        return jsonify(applications), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
@@ -47,16 +87,56 @@ def get_applications_staff(staff_id):
     '''
     Returns existing WFH applications under a particular staff ID
     '''
-    response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
-    if response.data:
-        return jsonify(response.data), 200
-    return jsonify({"error": "No applications found"}), 404
+    try:
+        # Fetch pending applications for the given staff
+        response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
+
+        if not response.data:
+            return jsonify({"error": "No pending applications found"}), 404
+
+        applications = response.data
+        
+        # Create a set of unique mgr IDs and
+        mgr_ids = {app['mgr_id'] for app in applications}
+
+        # Query employee table for mgr names
+        manager_response = supabase.table('employee')\
+            .select("staff_id, staff_fname, staff_lname")\
+            .in_("staff_id", list(mgr_ids))\
+            .execute()
+
+        # Query employee table for staff names
+        staff_response = supabase.table('employee')\
+            .select("staff_id, staff_fname, staff_lname")\
+            .eq("staff_id", staff_id)\
+            .execute()
+
+        if not staff_response.data or not manager_response.data:
+            return jsonify({"error": "No employee data found"}), 404
+
+        # Combine employee names into a dictionary
+        manager_data = {emp['staff_id']: f"{emp['staff_fname']} {emp['staff_lname']}" for emp in manager_response.data}
+
+        # Extract the staff's name
+        staff_name = f"{staff_response.data[0]['staff_fname']} {staff_response.data[0]['staff_lname']}"
+
+        # Merge names into applications data
+        for app in applications:
+            app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
+            app['staff_id'] = f"{staff_id} ({staff_name})"  # Same staff for all applications in this context
+
+        return jsonify(applications), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/approve_application', methods=['POST'])
 def approve_application():
     data = request.get_json()
-    staff_id = data['staff_id']
-    mgr_id = data['mgr_id']
+    # Extract integer part of staff_id and mgr_id by splitting the string
+    staff_id = data['staff_id'].split()[0]  # Take the first part before the space
+    mgr_id = data['mgr_id'].split()[0]      # Similarly, for mgr_id
     wfh_date = data['wfh_date']
 
     # Update the application approval status in Supabase
@@ -83,8 +163,9 @@ def approve_application():
 @app.route('/reject_application', methods=['POST'])
 def reject_application():
     data = request.get_json()
-    staff_id = data['staff_id']
-    mgr_id = data['mgr_id']
+    # Extract integer part of staff_id and mgr_id by splitting the string
+    staff_id = data['staff_id'].split()[0]  # Take the first part before the space
+    mgr_id = data['mgr_id'].split()[0]      # Similarly, for mgr_id
     wfh_date = data['wfh_date']
 
     # Update the application approval status in Supabase

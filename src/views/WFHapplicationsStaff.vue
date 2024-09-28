@@ -14,11 +14,9 @@
       </template>
 
       <!-- Custom row template -->
+      <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr>
-          <td>{{ item.mgr_id }}</td>
-          <td>{{ item.staff_id }}</td>
-          <td>{{ item.wfh_date }}</td>
           <td>
             <span
               :style="{
@@ -28,6 +26,12 @@
               {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
             </span>
           </td>
+          <!-- Display the manager name with the ID -->
+          <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
+          <!-- Display the staff name with the ID -->
+          <td>{{ item.staff_id }} {{ item.staff_name }}</td>
+          <td>{{ item.wfh_date }}</td>
+          
         </tr>
       </template>
 
@@ -45,12 +49,12 @@ import { ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
 
 const items = ref([]);
-const headers = [
-  { text: 'Mgr_id', value: 'mgr_id' },
-  { text: 'Staff_id', value: 'staff_id' },
-  { text: 'Wfh_date', value: 'wfh_date' },
-  { text: 'Approval', value: 'approval' }
-];
+// const headers = [
+//   { text: 'Mgr_id', value: 'mgr_id' },
+//   { text: 'Staff_id', value: 'staff_id' },
+//   { text: 'Wfh_date', value: 'wfh_date' },
+//   { text: 'Approval', value: 'approval' }
+// ];
 
 const { id } = useUser();
 
@@ -68,7 +72,7 @@ async function fetchApplications(staff_id) {
 }
 
 onMounted(() => {
-  const mgr_id = id.value; //can put a placeholder here if anyone not sure
-  fetchApplications(mgr_id);
+  const staff_id = id.value; //can put a placeholder here if anyone not sure
+  fetchApplications(staff_id);
 });
 </script>

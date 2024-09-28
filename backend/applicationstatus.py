@@ -27,18 +27,25 @@ supabase: Client = create_client(url, key)
 def get_applications_manager(mgr_id):
     '''
     Returns existing WFH applications under a particular manager ID
+    where approval is pending (approval == 0).
     '''
-    response = supabase.table('applications').select("*").eq("mgr_id", mgr_id).execute()
+    response = supabase.table('applications')\
+        .select("*")\
+        .eq("mgr_id", mgr_id)\
+        .eq("approval", 0)\
+        .execute()
+    
     if response.data:
         return jsonify(response.data), 200
-    return jsonify({"error": "No applications found"}), 404
+    
+    return jsonify({"error": "No pending applications found"}), 404
 
 
 
 @app.route('/WFHapplicationsStaff/<staff_id>', methods=['GET'])
 def get_applications_staff(staff_id):
     '''
-    Returns existing WFH applications under a particular manager ID
+    Returns existing WFH applications under a particular staff ID
     '''
     response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
     if response.data:
@@ -66,12 +73,6 @@ def approve_application():
             "wfh_date": wfh_date
         }).execute()
 
-        supabase.table('applications').delete() \
-        .eq("staff_id", staff_id) \
-        .eq("mgr_id", mgr_id) \
-        .eq("wfh_date", wfh_date) \
-        .execute()
-
         if staff_wfh_response.data:
             return jsonify({"success": True, "message": "Application approved and entry added to staff_wfh."}), 200
         
@@ -86,15 +87,15 @@ def reject_application():
     mgr_id = data['mgr_id']
     wfh_date = data['wfh_date']
 
-    # Delete the application from the applications table
-    response = supabase.table('applications').delete() \
+    # Update the application approval status in Supabase
+    response = supabase.table('applications').update({"approval": 2}) \
         .eq("staff_id", staff_id) \
         .eq("mgr_id", mgr_id) \
         .eq("wfh_date", wfh_date) \
         .execute()
 
     if response.data:
-        return jsonify({"success": True, "message": "Application rejected and entry deleted."}), 200
+        return jsonify({"success": True, "message": "Application rejected"}), 200
     
     return jsonify({"error": "Failed to reject application"}), 500
 

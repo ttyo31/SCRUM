@@ -12,15 +12,47 @@
           <v-divider class="mx-4" inset vertical></v-divider>
         </v-toolbar>
       </template>
+
+      <!-- Custom row template -->
+      <template v-slot:item="{ item }">
+        <tr>
+          <td>{{ item.mgr_id }}</td>
+          <td>{{ item.staff_id }}</td>
+          <td>{{ item.wfh_date }}</td>
+          <td>
+            <span
+              :style="{
+                color: item.approval === 1 ? 'green' : item.approval === 2 ? 'red' : 'orange'
+              }"
+            >
+              {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
+            </span>
+          </td>
+        </tr>
+      </template>
+
+      <!-- Show when there's no data -->
+      <template v-slot:no-data>
+        <v-alert>No applications available</v-alert>
+      </template>
+
     </v-data-table>
   </v-card>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue';
+import useUser from '../utils/useUser';
 
 const items = ref([]);
+const headers = [
+  { text: 'Mgr_id', value: 'mgr_id' },
+  { text: 'Staff_id', value: 'staff_id' },
+  { text: 'Wfh_date', value: 'wfh_date' },
+  { text: 'Approval', value: 'approval' }
+];
+
+const { id } = useUser();
 
 async function fetchApplications(staff_id) {
   try {
@@ -36,7 +68,7 @@ async function fetchApplications(staff_id) {
 }
 
 onMounted(() => {
-  const staff_id = 140001;  // Replace with the actual manager ID you want to fetch
-  fetchApplications(staff_id);
+  const mgr_id = id.value; //can put a placeholder here if anyone not sure
+  fetchApplications(mgr_id);
 });
 </script>

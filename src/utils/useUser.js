@@ -12,13 +12,22 @@ const role = ref(localStorage.getItem('role') || null);
 
 // Function to fetch user data
 const fetchStaffDetails = async (email) => {
+  const lowerCasedEmail = email.toLowerCase(); // Convert the input email to lowercase
   const { data, error } = await supabase
     .from('staff')
     .select('*')
-    .eq('mail', email);
+    .ilike('mail', lowerCasedEmail); // Use ilike for case-insensitive comparison
+
+  if (error) {
+    console.error('Error fetching staff details:', error);
+    return; // Exit if there's an error
+  }
 
   if (data && data.length > 0) {
     const userData = data[0];
+
+    // Log fetched user data for debugging
+    console.log('Fetched user data:', userData);
 
     // Store in reactive variables and localStorage
     id.value = userData.id;
@@ -38,9 +47,9 @@ const fetchStaffDetails = async (email) => {
     localStorage.setItem('dept', userData.dept);
     localStorage.setItem('role', userData.role);
 
-    console.log('Staff details:', userData);
-  } else if (error) {
-    console.error('Error fetching staff details:', error);
+    console.log('Staff details stored in localStorage:', userData);
+  } else {
+    console.warn('No data found for email:', email);
   }
 };
 

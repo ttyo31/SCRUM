@@ -2,10 +2,10 @@
   <v-card class="pa-4 ma-16" elevation="7">
     <!-- <div class="centering ma-8"><h1 style="text-align: center; margin: 0px;">WFH Application Form</h1></div> -->
     <v-form ref="form" v-model="valid" @submit.prevent="onSubmit">
-      <v-row>
+      <v-row justify="center" align="center">
 
         <!-- select date -->
-        <v-col cols="12" md="6">
+        <v-col cols="12" md="6" class="d-flex justify-center">
           <div class="centering">
           <v-date-picker
             v-model="formData.wfh_date"
@@ -15,18 +15,6 @@
           ></v-date-picker>
           </div>
         </v-col>
-
-        <!-- input Staff ID
-        <v-col cols="12" md="5">
-          <div class="centering ma-16 mr-16">
-          <v-text-field
-            v-model="formData.staff_id"
-            label="Staff ID"
-            :rules="[v => !!v || 'Please input your Staff ID!']"
-            required
-          ></v-text-field>
-          </div>
-        </v-col> -->
 
         <v-col cols="12" md="1"></v-col>
       </v-row>

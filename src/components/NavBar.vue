@@ -54,6 +54,42 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      
+      <!-- Notifications Icon with Badge -->
+      <v-menu
+        v-model="notificationsVisible"
+        offset-y
+        :close-on-content-click="true"
+        transition="scale-transition"
+        style="z-index: 1000;"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            icon
+            v-bind="props"
+            class="text-white"
+            @click="toggleNotifications"
+          >
+            <v-icon>mdi-bell</v-icon>
+            <v-badge
+              v-if="unreadNotifications > 0"
+              :content="unreadNotifications"
+              color="red"
+              overlap
+            />
+          </v-btn>
+        </template>
+
+        <!-- Notification List -->
+        <v-list class="transparent-dropdown">
+          <v-list-item v-for="(notification, index) in notifications" :key="index">
+            <v-list-item-title>{{ notification.message }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="notifications.length === 0">
+            <v-list-item-title>No new notifications</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-tabs>
     
     <!-- Log Out button placed at the far right -->
@@ -67,13 +103,17 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'; // Import the router to redirect
+import { supabase } from '../utils/supabase'; // Ensure Supabase is properly configured
 import useUser from '../utils/useUser'; // Import the useUser composable
 
 const tab = ref('one'); // Default selected tab
 const dropdownVisible = ref(false); // Control visibility of the dropdown
+const notificationsVisible = ref(false); // Control visibility of notifications dropdown
+const unreadNotifications = ref(0); // Number of unread notifications
+const notifications = ref([]); // Array to hold notification messages
 
 // Access user details using the composable
-const { role, dept, clearUserData } = useUser();
+const { role, dept, clearUserData, id } = useUser(); // Assuming user ID is available in useUser composable
 
 // Access the router for navigation
 const router = useRouter();
@@ -84,10 +124,63 @@ const logOut = () => {
   router.push('/'); // Redirect the user to the login page
 };
 
-// Mounted hook for debugging user role and department
+// Fetch notifications from Supabase
+async function fetchNotifications() {
+  try {
+    const { data: notificationsData, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('staff_id', id.value)
+      .eq('status', 'unread');
+
+      console.log('Current User ID:', id.value); // Log the current user ID
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log('Fetched Notifications:', notificationsData); // Log notifications to ensure they are fetched
+    notifications.value = notificationsData || [];
+    unreadNotifications.value = notifications.value.length;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+  }
+}
+
+// Toggle notifications dropdown and mark as read when opened
+const toggleNotifications = async () => {
+  notificationsVisible.value = !notificationsVisible.value;
+  if (notificationsVisible.value) {
+    // Mark all notifications as read
+    const { error } = await supabase
+      .from('notifications')
+      .update({ status: 'read' })
+      .eq('staff_id', id.value); // Update the notifications for the logged-in user
+
+    if (error) {
+      console.error('Error marking notifications as read:', error);
+    } else {
+      unreadNotifications.value = 0; // Reset the unread count
+    }
+  }
+};
+// commented it out cuz code won't run 
+// Real-time notification listener using Supabase subscription
+// function listenToNotifications() {
+//   const notificationSubscription = supabase
+//     .from(`notifications:staff_id=eq.${id.value}`) // Subscribe to notifications table for this user
+//     .on('INSERT', payload => {
+//       console.log('New notification:', payload.new); // Log new notification
+//       notifications.value.push(payload.new); // Add the new notification to the list
+//       unreadNotifications.value += 1; // Increase unread notification count
+//     })
+//     .subscribe();
+// }
+
+// Mounted hook for fetching notifications and setting up real-time listener
 onMounted(() => {
-  console.log('User role:', role.value);
-  console.log('User department:', dept.value);
+  fetchNotifications(); // Fetch notifications when the navbar is mounted
+  // listenToNotifications(); // Set up real-time listener for new notifications
 });
 </script>
 
@@ -97,6 +190,8 @@ v-toolbar {
 }
 .transparent-dropdown {
   background-color: rgba(255, 255, 255, 0.8);
+  max-height: 300px; /* Set a max height for the dropdown */
+  overflow-y: auto; /* Enable scrolling if content exceeds the height */
   box-shadow: none !important; /* No elevation */
   border-radius: 4px;
 }

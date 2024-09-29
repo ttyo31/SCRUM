@@ -55,35 +55,19 @@
         </v-list>
       </v-menu>
       
-      <!-- Notifications Icon with Badge -->
-      <v-menu
-        v-model="notificationsVisible"
-        offset-y
-        :close-on-content-click="true"
-        transition="scale-transition"
-        style="z-index: 1000;"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            icon
-            v-bind="props"
-            class="text-white"
-            @click="toggleNotifications"
-          >
-            <v-icon>mdi-bell</v-icon>
-            <v-badge
-              v-if="unreadNotifications > 0"
-              :content="unreadNotifications"
-              color="red"
-              overlap
-            />
-          </v-btn>
-        </template>
+       <!-- Notifications Icon with Badge -->
+       <v-btn icon @click="toggleNotifications" class="text-white">
+        <v-icon>mdi-bell</v-icon>
+        <v-badge v-if="unreadNotifications > 0" :content="unreadNotifications" color="red" overlap />
+      </v-btn>
 
-        <!-- Notification List -->
-        <v-list class="transparent-dropdown">
-          <v-list-item v-for="(notification, index) in notifications" :key="index">
-            <v-list-item-title>{{ notification.message }}</v-list-item-title>
+      <!-- Notifications Dropdown -->
+      <v-menu v-model="notificationsVisible" bottom right offset-y transition="scale-transition">
+        <v-list>
+          <v-list-item v-for="notification in notifications" :key="notification.id">
+            <v-list-item-content>
+              <v-list-item-title>{{ notification.message }}</v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
           <v-list-item v-if="notifications.length === 0">
             <v-list-item-title>No new notifications</v-list-item-title>
@@ -91,6 +75,7 @@
         </v-list>
       </v-menu>
     </v-tabs>
+
     
     <!-- Log Out button placed at the far right -->
     <v-spacer></v-spacer>

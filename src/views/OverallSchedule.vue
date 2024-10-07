@@ -9,14 +9,63 @@
           outlined
           dense
         ></v-select>
-        <v-sheet height="600">
-          <v-calendar
-            ref="calendar"
-            v-model="today"
-            :events="filteredEvents"
-            color="primary"
-            type="month"
-          ></v-calendar>
+
+        <v-select
+          v-model="viewMode"
+          :items="viewModes"
+          label="Select View Mode"
+          outlined
+          dense
+          class="mt-4"
+        ></v-select>
+
+        <v-sheet height="600" class="mt-4">
+          <template v-if="viewMode === 'Calendar'">
+            <v-calendar
+              ref="calendar"
+              v-model="today"
+              :events="filteredEvents"
+              color="primary"
+              type="month"
+            ></v-calendar>
+          </template>
+          <template v-else>
+            <!-- Dashboard view showing employees and their WFH status for the next 7 days -->
+            <v-simple-table class="elevation-1">
+              <thead>
+                <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
+                  <th style="padding: 8px; border-right: 1px solid #ddd;">Employee Name</th>
+                  <th
+                    v-for="day in next7Days"
+                    :key="day"
+                    style="padding: 8px; border-right: 1px solid #ddd;"
+                  >
+                    {{ formatDate(day) }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="employee in filteredEmployees"
+                  :key="employee.id"
+                  style="border: 1px solid #ddd;"
+                >
+                  <td style="padding: 8px; border-right: 1px solid #ddd;">
+                    {{ employee.name }}
+                  </td>
+                  <td
+                    v-for="day in next7Days"
+                    :key="day"
+                    style="padding: 8px; border-right: 1px solid #ddd; text-align: center;"
+                  >
+                    <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
+                    <span :style="{ color: 'green' }" v-else>Office</span>
+                  </td>
+                </tr>
+              </tbody>
+            </v-simple-table>
+
+          </template>
         </v-sheet>
       </v-col>
     </v-row>
@@ -26,38 +75,59 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { format } from 'date-fns' // Import date-fns for date formatting
 
-const today = ref([new Date()])
+const today = ref(new Date())
 const events = ref([])
-const selectedDept = ref('All') // Default selection for all departments
-const departments = ref(['All', 'HR', 'Engineering', 'Marketing', 'Sales', 'Finance']) // Add more departments
+const employees = ref([]) // New state to hold employees data
+const selectedDept = ref('All')
+const departments = ref(['All', 'HR', 'Engineering', 'Marketing', 'Sales', 'Finance'])
+const viewMode = ref('Calendar')
+const viewModes = ref(['Calendar', 'Dashboard'])
 
-// Fetch WFH events from Flask backend
+// Helper function to generate the next 7 days
+const next7Days = computed(() => {
+  const days = []
+  for (let i = 0; i < 7; i++) {
+    const date = new Date()
+    date.setDate(date.getDate() + i)
+    days.push(date)
+  }
+  return days
+})
+
+// Fetch employees and WFH events from the backend
 async function fetchOverallEvents() {
   try {
-    const response = await axios.get(`http://localhost:5000/api/all_wfh_events`)
+    const eventsResponse = await axios.get(`http://localhost:5000/api/all_wfh_events`)
+    const employeesResponse = await axios.get(`http://localhost:5000/api/all_employees`)
 
-    // Define a color mapping based on department
     const deptColors = {
       "HR": "blue",
       "Engineering": "green",
       "Marketing": "red",
       "Sales": "orange",
       "Finance": "purple",
-      "default": "gray"  // Fallback color if department is not listed
+      "default": "gray"
     }
 
-    // Transform the response data into a format suitable for the calendar
-    events.value = response.data.map(event => ({
+    events.value = eventsResponse.data.map(event => ({
       title: `${event.fname} ${event.lname}`,
       start: new Date(event.wfh_date),
-      end: new Date(event.wfh_date),  // Assuming one-day events
-      dept: event.dept,               // Store department info for filtering
-      color: deptColors[event.dept] || deptColors["default"],  // Assign color based on department
-      allDay: true                    // Mark as an all-day event
+      end: new Date(event.wfh_date),
+      dept: event.dept,
+      empId: event.empId,
+      color: deptColors[event.dept] || deptColors["default"],
+      allDay: true
+    }))
+
+    employees.value = employeesResponse.data.map(employee => ({
+      id: employee.id,
+      name: `${employee.fname} ${employee.lname}`,
+      dept: employee.dept
     }))
   } catch (error) {
-    console.error('Error fetching WFH events:', error)
+    console.error('Error fetching data:', error)
   }
 }
 
@@ -70,7 +140,26 @@ const filteredEvents = computed(() => {
   }
 })
 
-// On component mount, fetch the events
+// Filter employees based on the selected department
+const filteredEmployees = computed(() => {
+  if (selectedDept.value === 'All') {
+    return employees.value
+  } else {
+    return employees.value.filter(employee => employee.dept === selectedDept.value)
+  }
+})
+
+// Helper function to check if an employee is on WFH for a given day
+function isOnWFH(employee, day) {
+  return events.value.some(event => event.empId === employee.id && event.start.toDateString() === day.toDateString())
+}
+
+// Helper function to format date
+function formatDate(date) {
+  return format(date, 'MMM dd')
+}
+
+// On component mount, fetch the events and employees
 onMounted(() => {
   fetchOverallEvents()
 })

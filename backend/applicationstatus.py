@@ -240,10 +240,26 @@ def all_wfh_events():
                 "fname": staff_info['fname'],
                 "lname": staff_info['lname'],
                 "wfh_date": wfh["wfh_date"],
-                "dept": staff_info['dept']
+                "dept": staff_info['dept'],
+                "empId": wfh['id']
             })
 
     return jsonify(wfh_events), 200
+
+# Endpoint to get all employees
+@app.route('/api/all_employees', methods=['GET'])
+def get_all_employees():
+    try:
+        # Query the 'employees' table from Supabase
+        response = supabase.table("staff").select("id, fname, lname, dept").execute()
+
+        # Extract data from response
+        employees = response.data
+        
+        # Return the employee data as JSON
+        return jsonify(employees), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

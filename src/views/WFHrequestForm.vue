@@ -1,23 +1,15 @@
 <template>
-  <v-card class="pa-4 ma-16" elevation="7">
-    <!-- <div class="centering ma-8"><h1 style="text-align: center; margin: 0px;">WFH Application Form</h1></div> -->
+  <!-- <v-card class="pa-4 ma-16" elevation="7"> -->
+    <div class="centering ma-10"></div>
     <v-form ref="form" v-model="valid" @submit.prevent="onSubmit">
-      <v-row justify="center" align="center">
-
-        <!-- select date -->
-        <v-col cols="12" md="6" class="d-flex justify-center">
-          <div class="centering">
-          <v-date-picker
-            v-model="formData.wfh_date"
-            no-title
-            scrollable
-            @input="menu = false"
-          ></v-date-picker>
-          </div>
-        </v-col>
-
-        <v-col cols="12" md="1"></v-col>
-      </v-row>
+      <div class="centering">
+        <v-date-picker
+          v-model="formData.wfh_date"
+          no-title
+          scrollable
+          @input="menu = false"
+        ></v-date-picker>
+      </div>
 
       <!-- submit button -->
       <div class="centering"><v-btn type="submit" class="black-button">Submit</v-btn></div>
@@ -45,7 +37,7 @@
       </v-dialog>
 
     </v-form>
-  </v-card>
+  <!-- </v-card> -->
 </template>
 
 <script setup>

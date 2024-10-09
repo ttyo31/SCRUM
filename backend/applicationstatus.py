@@ -261,6 +261,22 @@ def get_all_employees():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/remove_wfh', methods=["POST"])
+def remove_wfh():
+    data=request.get_json()
+    date = data["wfh_date"]
+    id = data["id"]
+    try:
+        response = supabase.table("staff_wfh").delete().eq("id", id).eq("wfh_date", date).execute()
+        response2 = supabase.table("applications").update({"approval": 2}).eq("staff_id", id).eq("wfh_date", date).execute()
+        if response.data and response2.data:
+          return ("Record deleted successfully:", response.data)
+        else:
+          return ("No matching records found to delete")
+    except Exception as e:
+        return ("Error Deleting the record",e)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

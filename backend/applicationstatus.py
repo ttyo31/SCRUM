@@ -275,6 +275,21 @@ def remove_wfh():
           return ("No matching records found to delete")
     except Exception as e:
         return ("Error Deleting the record",e)
+    
+
+@app.route('/api/withdraw_application', methods=["POST"])
+def withdraw_application():
+    data=request.get_json()
+    date = data["wfh_date"]
+    id = data["id"]
+    try:
+        response = supabase.table("applications").delete().eq("staff_id", id).eq("wfh_date", date).execute()
+        if response.data:
+          return jsonify({"message": "Record deleted successfully", "data": response.data}), 200
+        else:
+          return jsonify({"message": "No matching records found to delete"}), 404
+    except Exception as e:
+        return jsonify({"error": "Error deleting the record", "details": str(e)}), 500
 
 
 if __name__ == '__main__':

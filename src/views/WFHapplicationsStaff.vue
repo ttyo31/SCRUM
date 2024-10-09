@@ -31,9 +31,16 @@
           <!-- Display the staff name with the ID -->
           <td>{{ item.staff_id }} {{ item.staff_name }}</td>
           <td>{{ item.wfh_date }}</td>
-
-          <td><button v-if=" item.approval===1" @click="removeWfh(item.wfh_date,item.staff_id)">Remove Work From home</button></td>
           
+          <td>
+            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)"  style="background-color: red; color: white;">
+              Remove Work From Home
+            </button>
+            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)"  style="background-color: yellow; color: black;">
+              Withdraw Application
+            </button>
+          </td>
+
         </tr>
       </template>
 
@@ -101,6 +108,35 @@ function removeWfh(date,id){
       console.error('Error with POST request:', error);
     });
 }
+
+function withdraw_application(date,id){
+  const url = "http://localhost:5000/api/withdraw_application"
+  const payload = {
+    id: id.split(" ")[0],
+    wfh_date: date,
+  };
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
+
+
+
 
 onMounted(() => {
   const staff_id = id.value; //can put a placeholder here if anyone not sure

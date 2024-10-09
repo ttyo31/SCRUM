@@ -7,8 +7,8 @@
         <v-tab value="one" class="text-white">Home</v-tab>
       </router-link>
       
-      <router-link to="/about">
-        <v-tab value="two" class="text-white">Calendar</v-tab>
+      <router-link to="/myschedule">
+        <v-tab value="two" class="text-white">My Schedule</v-tab>
       </router-link>
 
       <router-link to="/TeamSchedule">

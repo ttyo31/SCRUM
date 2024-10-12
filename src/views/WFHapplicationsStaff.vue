@@ -60,7 +60,7 @@ const { id } = useUser();
 
 async function fetchApplications(staff_id) {
   try {
-    const response = await fetch(`http://localhost:5000/WFHapplicationsStaff/${staff_id}`);
+    const response = await fetch(`https://scrum-backend-nduvy27uf-riannes-projects.vercel.app/api/WFHapplicationsStaff/${staff_id}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

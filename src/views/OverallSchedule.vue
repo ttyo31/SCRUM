@@ -35,7 +35,7 @@ const departments = ref(['All', 'HR', 'Engineering', 'Marketing', 'Sales', 'Fina
 // Fetch WFH events from Flask backend
 async function fetchOverallEvents() {
   try {
-    const response = await axios.get(`https://scrum-backend-nduvy27uf-riannes-projects.vercel.app/api/all_wfh_events`)
+    const response = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`)
 
     // Define a color mapping based on department
     const deptColors = {

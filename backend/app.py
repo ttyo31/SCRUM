@@ -13,7 +13,7 @@ from config import Config
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}) #this is to allow requests from any origin 
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 

@@ -46,7 +46,7 @@ const items = ref([]);
 
 async function fetchApplications(mgr_id) {
   try {
-    const response = await fetch(`https://scrum-backend-nduvy27uf-riannes-projects.vercel.app/api/WFHapplicationsManager/${mgr_id}`);
+    const response = await fetch(`https://scrum-backend.vercel.app/api/WFHapplicationsManager/${mgr_id}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -64,7 +64,7 @@ async function approveApplication(item) {
     // Strip the names from staff_id and mgr_id, only send the IDs
     const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
     const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
-    const response = await fetch('https://scrum-backend-nduvy27uf-riannes-projects.vercel.app/api/approve_application', {
+    const response = await fetch('https://scrum-backend.vercel.app/api/approve_application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ async function rejectApplication(item) {
     // Strip the names from staff_id and mgr_id, only send the IDs
     const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
     const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
-    const response = await fetch('https://scrum-backend-nduvy27uf-riannes-projects.vercel.app/api/reject_application', {
+    const response = await fetch('https://scrum-backend.vercel.app/api/reject_application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -32,6 +32,15 @@
           <td>{{ item.staff_id }} {{ item.staff_name }}</td>
           <td>{{ item.wfh_date }}</td>
           
+          <td>
+            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)"  style="background-color: red; color: white;">
+              Remove Work From Home
+            </button>
+            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)"  style="background-color: yellow; color: black;">
+              Withdraw Application
+            </button>
+          </td>
+
         </tr>
       </template>
 
@@ -70,9 +79,69 @@ async function fetchApplications(staff_id) {
     console.error("Error fetching applications:", error);
   }
 }
+function removeWfh(date,id){
+  console.log("this is to remove")
+  console.log(date)
+  console.log(id.split(" ")[0]) //this is coz staff_id returns id then the name
+  // Now need to call applicationstatus.py one of the functions. which will remove it.
+  const url = "http://localhost:5000/api/remove_wfh"
+  const payload = {
+    id: id.split(" ")[0],
+    wfh_date: date,
+  };
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
+
+function withdraw_application(date,id){
+  const url = "http://localhost:5000/api/withdraw_application"
+  const payload = {
+    id: id.split(" ")[0],
+    wfh_date: date,
+  };
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
+
+
+
 
 onMounted(() => {
   const staff_id = id.value; //can put a placeholder here if anyone not sure
   fetchApplications(staff_id);
 });
+
+
 </script>

@@ -30,7 +30,7 @@ const events = ref([])
 // Fetch WFH events from Flask backend for a specific manager
 async function fetchStaffEvents(userID) {
   try {
-    const response = await axios.get(`http://localhost:5000/api/wfh_events/${userID}`)
+    const response = await axios.get(`https://scrum-backend.vercel.app/api/wfh_events/${userID}`)
 
     // Transform the response data into a format suitable for the calendar
     events.value = response.data.map(event => ({

@@ -99,8 +99,10 @@ const next7Days = computed(() => {
 // Fetch employees and WFH events from the backend
 async function fetchOverallEvents() {
   try {
+
     const eventsResponse = await axios.get(`http://localhost:5000/api/all_wfh_events`)
     const employeesResponse = await axios.get(`http://localhost:5000/api/all_employees`)
+
 
     const deptColors = {
       "HR": "blue",

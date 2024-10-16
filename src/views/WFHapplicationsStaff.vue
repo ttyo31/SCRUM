@@ -84,7 +84,7 @@ function removeWfh(date,id){
   console.log(date)
   console.log(id.split(" ")[0]) //this is coz staff_id returns id then the name
   // Now need to call applicationstatus.py one of the functions. which will remove it.
-  const url = "http://localhost:5000/api/remove_wfh"
+  const url = "https://scrum-backend.vercel.app/api/remove_wfh"
   const payload = {
     id: id.split(" ")[0],
     wfh_date: date,
@@ -110,7 +110,7 @@ function removeWfh(date,id){
 }
 
 function withdraw_application(date,id){
-  const url = "http://localhost:5000/api/withdraw_application"
+  const url = "https://scrum-backend.vercel.app/api/withdraw_application"
   const payload = {
     id: id.split(" ")[0],
     wfh_date: date,

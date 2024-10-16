@@ -100,8 +100,8 @@ const next7Days = computed(() => {
 async function fetchOverallEvents() {
   try {
 
-    const eventsResponse = await axios.get(`http://localhost:5000/api/all_wfh_events`)
-    const employeesResponse = await axios.get(`http://localhost:5000/api/all_employees`)
+    const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`)
+    const employeesResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_employees`)
 
 
     const deptColors = {

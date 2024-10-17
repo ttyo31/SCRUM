@@ -2,70 +2,55 @@
   <div class="about">
     <v-row class="fill-height">
       <v-col>
-        <v-select
-          v-model="selectedDept"
-          :items="departments"
-          label="Filter by Department"
-          outlined
-          dense
-        ></v-select>
+        <div style="display: flex; justify-content: end;">
+          <v-select v-model="selectedDept" :items="departments" class="mt-4 w-50" label="Filter by Department"
+            variant="outlined" outlined dense style="max-width: 200px"></v-select>
 
-        <v-select
-          v-model="viewMode"
-          :items="viewModes"
-          label="Select View Mode"
-          outlined
-          dense
-          class="mt-4"
-        ></v-select>
+          <v-select v-model="viewMode" :items="viewModes" label="Select View Mode" outlined variant="outlined" dense
+            class="mt-4 w-50" style="max-width: 200px"></v-select>
+        </div>
 
         <v-sheet height="600" class="mt-4">
           <template v-if="viewMode === 'Calendar'">
-            <v-calendar
-              ref="calendar"
-              v-model="today"
-              :events="filteredEvents"
-              color="primary"
-              type="month"
-            ></v-calendar>
+            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary"
+              type="month"></v-calendar>
           </template>
           <template v-else>
-            <!-- Dashboard view showing employees and their WFH status for the next 7 days -->
-            <v-simple-table class="elevation-1">
-              <thead>
-                <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
-                  <th style="padding: 8px; border-right: 1px solid #ddd;">Employee Name</th>
-                  <th
-                    v-for="day in next7Days"
-                    :key="day"
-                    style="padding: 8px; border-right: 1px solid #ddd;"
-                  >
-                    {{ formatDate(day) }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="employee in filteredEmployees"
-                  :key="employee.id"
-                  style="border: 1px solid #ddd;"
-                >
-                  <td style="padding: 8px; border-right: 1px solid #ddd;">
-                    {{ employee.name }}
-                  </td>
-                  <td
-                    v-for="day in next7Days"
-                    :key="day"
-                    style="padding: 8px; border-right: 1px solid #ddd; text-align: center;"
-                  >
-                    <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
-                    <span :style="{ color: 'green' }" v-else>Office</span>
-                  </td>
-                </tr>
-              </tbody>
-            </v-simple-table>
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <v-text-field v-model="searchQuery" label="Search Employee Name" class="mt-4 w-50" outlined dense
+                style="max-width: 300px" />
 
+              <v-simple-table class="elevation-1">
+                <thead>
+                  <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
+                    <th style="padding: 8px; border-right: 1px solid #ddd;">Employee Name</th>
+                    <th v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd;">
+                      {{ formatDate(day) }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="employee in filteredEmployees" :key="employee.id" style="border: 1px solid #ddd;">
+                    <td style="padding: 8px; border-right: 1px solid #ddd;">
+                      {{ employee.name }}
+                    </td>
+                    <td v-for="day in next7Days" :key="day"
+                      style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
+                      <template v-if="day.getDay() === 0 || day.getDay() === 6">
+                        <!-- Check for Sunday (0) or Saturday (6) -->
+                        <span :style="{ color: 'orange' }">Weekend</span>
+                      </template>
+                      <template v-else>
+                        <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
+                        <span :style="{ color: 'green' }" v-else>Office</span>
+                      </template>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+            </div>
           </template>
+
         </v-sheet>
       </v-col>
     </v-row>
@@ -79,30 +64,32 @@ import { format } from 'date-fns' // Import date-fns for date formatting
 
 const today = ref(new Date())
 const events = ref([])
-const employees = ref([]) // New state to hold employees data
+const employees = ref([])
 const selectedDept = ref('All')
 const departments = ref(['All', 'HR', 'Engineering', 'Marketing', 'Sales', 'Finance'])
 const viewMode = ref('Calendar')
 const viewModes = ref(['Calendar', 'Dashboard'])
+const searchQuery = ref(''); // New search query reactive variable
 
-// Helper function to generate the next 7 days
 const next7Days = computed(() => {
   const days = []
+  const startOfWeek = new Date(today.value)
+  const dayOfWeek = startOfWeek.getDay() // Get the current day of the week (0-6)
+  startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1) // Set to the last Sunday
+
   for (let i = 0; i < 7; i++) {
-    const date = new Date()
-    date.setDate(date.getDate() + i)
+    const date = new Date(startOfWeek)
+    date.setDate(startOfWeek.getDate() + i)
     days.push(date)
   }
   return days
 })
 
-// Fetch employees and WFH events from the backend
+
 async function fetchOverallEvents() {
   try {
-
     const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`)
     const employeesResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_employees`)
-
 
     const deptColors = {
       "HR": "blue",
@@ -133,7 +120,6 @@ async function fetchOverallEvents() {
   }
 }
 
-// Filter events based on the selected department
 const filteredEvents = computed(() => {
   if (selectedDept.value === 'All') {
     return events.value
@@ -142,26 +128,23 @@ const filteredEvents = computed(() => {
   }
 })
 
-// Filter employees based on the selected department
+// Filter employees based on the selected department and search query
 const filteredEmployees = computed(() => {
-  if (selectedDept.value === 'All') {
-    return employees.value
-  } else {
-    return employees.value.filter(employee => employee.dept === selectedDept.value)
-  }
-})
+  return employees.value.filter(employee => {
+    const isDeptMatch = selectedDept.value === 'All' || employee.dept === selectedDept.value;
+    const isSearchMatch = employee.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return isDeptMatch && isSearchMatch;
+  });
+});
 
-// Helper function to check if an employee is on WFH for a given day
 function isOnWFH(employee, day) {
   return events.value.some(event => event.empId === employee.id && event.start.toDateString() === day.toDateString())
 }
 
-// Helper function to format date
 function formatDate(date) {
   return format(date, 'MMM dd')
 }
 
-// On component mount, fetch the events and employees
 onMounted(() => {
   fetchOverallEvents()
 })

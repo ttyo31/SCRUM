@@ -4,11 +4,12 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from flask_cors import CORS 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
-
 # Load environment variables
+from flask_mail import Mail, Message
+import requests
 load_dotenv()
 
 app = Flask(__name__)
@@ -20,9 +21,42 @@ url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'scrumjacksim@gmail.com'  # Your email
+app.config['MAIL_PASSWORD'] = 'ihatescrum'  # Your email password
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_DEBUG'] = int(os.environ.get('MAIL_DEBUG', 0))
+
+mail = Mail(app)  # Initialize Mail only once
 # def getStaff():
 #     response = supabase.table('staff').select('fname').execute()
 #     return response.data
+
+#This the generic code for testing the sending of email. need to generate the rest for specific people
+#this code will be for managers 
+@app.route('/api/send-email', methods=['POST'])
+def send_email():
+    url = "https://script.google.com/macros/s/AKfycbxG3EnSYZAFLlS9qhRseObe08CsHT-PviqhzKm99cTDAn4vit3KUgbEKDnt2qGodpS0/exec"
+    data = request.get_json()
+    recipient = data.get("recipient")
+    body = data.get("body")
+    payload = {
+        'recipient': recipient,
+        "message":body
+    }
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.exceptions.HTTPError as http_err:
+        return jsonify({'error': str(http_err)}), 500
+    except Exception as err:
+        return jsonify({'error': str(err)}), 500
+
+    # Step 4: Return a response to the client
+    return jsonify({'message': 'Email sent and POST request made successfully', 'external_response': response.json()}), 200
+
 
 @app.before_request
 def log_request_info():

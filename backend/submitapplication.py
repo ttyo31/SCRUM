@@ -104,6 +104,11 @@ def list_employees():
 def send_request(staff_id):
     date = request.get_json()
     application_date = datetime.fromisoformat(date["date"])
+    current_time = datetime.now()
+    time_diff = application_date-current_time
+    #i have added the 24 hour rule need to check if it works.
+    if(time_diff.total_seconds()<24*3600):
+        return jsonify({'success': False, 'message': 'Application date must be at least 24 hours in the future'}), 400
     employee = Employee.query.filter_by(Staff_ID=staff_id).first()
     if not employee:
         return jsonify({'success': False, 'message': 'Employee not found'}), 404

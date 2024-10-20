@@ -64,6 +64,35 @@ onMounted(() => {
   formData.value.staff_id = id.value;
 });
 
+//this one is still using the local host need to change to the new vercel one.
+function sendemail(){
+  const url = "https://scrumbackend.vercel.app/api/send-email"
+  const recipient = "thanthuyaoo@gmail.com"
+  const message = "There is WFH request to be approved"
+  const payload = {
+    recipient: recipient,
+    body:message
+  }
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
+
 const onSubmit = async () => {
   if (!valid.value) return;
 
@@ -85,6 +114,7 @@ const onSubmit = async () => {
     } else {
       successDialog.value = true;
       formData.value.wfh_date = null; // Reset the date picker
+      sendemail()
     }
   } catch (err) {
     showDialog('An unexpected error occurred: ' + err.message);

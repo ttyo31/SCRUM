@@ -15,7 +15,7 @@ app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
 mail = Mail(app)
-
+# this one need to split to manager and staff 
 @app.route('/send-email', methods=['POST'])
 def send_email():
     url = "https://script.google.com/macros/s/AKfycbxG3EnSYZAFLlS9qhRseObe08CsHT-PviqhzKm99cTDAn4vit3KUgbEKDnt2qGodpS0/exec"

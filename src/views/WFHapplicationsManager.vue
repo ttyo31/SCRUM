@@ -64,7 +64,7 @@ async function approveApplication(item) {
     // Strip the names from staff_id and mgr_id, only send the IDs
     const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
     const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
-    const response = await fetch('https://scrum-backend.vercel.app/api/approve_application', {
+    const response = await fetch('https://scrumbackend.vercel.app/api/approve_application', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

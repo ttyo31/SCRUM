@@ -46,7 +46,7 @@ import { supabase } from '../utils/supabase';
 import useUser from '../utils/useUser';
 
 // Access the user data from the composable
-const { id, mgr_id } = useUser();
+const { id, mgr_id, mail } = useUser();
 
 const formData = ref({
   staff_id: null,
@@ -67,7 +67,7 @@ onMounted(() => {
 //this one is still using the local host need to change to the new vercel one.
 function sendemail(){
   const url = "https://scrumbackend.vercel.app/api/send-email"
-  const recipient = "thanthuyaoo@gmail.com"
+  // mgr_mail = 
   const message = "There is WFH request to be approved"
   const payload = {
     recipient: recipient,

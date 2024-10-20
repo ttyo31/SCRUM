@@ -14,7 +14,7 @@ class TestWorkFromHomeApplication(unittest.TestCase):
         # Set up the Flask test client
         self.client = self.app.test_client()
         self.client.testing = True
-
+    
     @patch('requests.post')  # Mock the external HTTP request
     def test_mail(self, mock_post):
         # Mock response for the external POST request
@@ -26,7 +26,7 @@ class TestWorkFromHomeApplication(unittest.TestCase):
         mock_post.return_value.json.return_value = mock_response
 
         # Send a POST request to the /send-email route via the test client
-        response = self.client.post('/send-email',  
+        response = self.client.post('/api/send-email',  
             data=json.dumps({"recipient": "example@example.com", "body": "Test email body"}), 
             content_type='application/json')
 
@@ -42,7 +42,7 @@ class TestWorkFromHomeApplication(unittest.TestCase):
     def test_mail_real_call(self): #This one needs the server to run to actually test
         # Send a POST request to the /send-email route to trigger the actual function
         response = self.client.post('/api/send-email',  
-            data=json.dumps({"recipient": "thanthuyaoo@gmail.com", "body": "Test email body"}), 
+            data=json.dumps({"recipient": "scrumjacksim@gmail.com", "body": "Test email body"}), 
             content_type='application/json')
 
         # Assert that the status code is 200 (Success)

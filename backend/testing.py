@@ -87,5 +87,6 @@ class TestWFHEvents(unittest.TestCase): #OK
         self.assertIn(b"John", response.data)
         self.assertIn(b"Doe", response.data)
         self.assertIn(b"2023-10-01", response.data)
+        
 if __name__ == "__main__":
     unittest.main()

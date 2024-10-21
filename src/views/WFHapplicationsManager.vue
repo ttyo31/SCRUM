@@ -39,10 +39,37 @@ import { ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
 
 // Use the composable to access user details
-const { id } = useUser();
+const { id, mail } = useUser();
 console.log(id);
 
 const items = ref([]);
+
+function sendmail(){
+ const url = "https://scrumbackend.vercel.app/api/send-email"
+  const emailurl = mail.value
+  const payload = {
+    recipient: emailurl,
+    body:"There has been a change to your WFH application"
+  }
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
 
 async function fetchApplications(mgr_id) {
   try {
@@ -83,6 +110,7 @@ async function approveApplication(item) {
     const result = await response.json();
     if (result.success) {
       // Optionally, you can refresh the list of applications after approval
+      sendmail(staff_id);
       fetchApplications(mgr_id);
     }
   } catch (error) {
@@ -114,6 +142,7 @@ async function rejectApplication(item) {
     const result = await response.json();
     if (result.success) {
       // Optionally, you can refresh the list of applications after approval
+      sendmail(staff_id)
       fetchApplications(mgr_id);
     }
   } catch (error) {

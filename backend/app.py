@@ -35,7 +35,6 @@ mail = Mail(app)  # Initialize Mail only once
 #     return response.data
 
 #This the generic code for testing the sending of email. need to generate the rest for specific people
-#this code will be for managers 
 @app.route('/api/send-email', methods=['POST'])
 def send_email():
     url = "https://script.google.com/macros/s/AKfycbxG3EnSYZAFLlS9qhRseObe08CsHT-PviqhzKm99cTDAn4vit3KUgbEKDnt2qGodpS0/exec"

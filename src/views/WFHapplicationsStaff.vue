@@ -65,7 +65,34 @@ const items = ref([]);
 //   { text: 'Approval', value: 'approval' }
 // ];
 
-const { id } = useUser();
+const { id,mail } = useUser();
+
+function sendmail(){
+ const url = "https://scrumbackend.vercel.app/api/send-email"
+  const emailurl = mail.value
+  const payload = {
+    recipient: emailurl,
+    body:"Your WFH date has been changed"
+  }
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',  // Important: specify JSON content type
+    },
+    body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('POST request successful:', data);
+    })
+    .catch(error => {
+      console.error('Error with POST request:', error);
+    });
+}
 
 async function fetchApplications(staff_id) {
   try {
@@ -99,9 +126,11 @@ function removeWfh(date,id){
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      sendmail()
       return response.json();
     })
     .then(data => {
+    
       console.log('POST request successful:', data);
     })
     .catch(error => {
@@ -125,9 +154,12 @@ function withdraw_application(date,id){
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      sendmail()
       return response.json();
+      
     })
     .then(data => {
+      
       console.log('POST request successful:', data);
     })
     .catch(error => {

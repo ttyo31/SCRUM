@@ -252,9 +252,9 @@ class TestAllWFHEvents(unittest.TestCase): #OK
             self.assertEqual(response.status_code, 500)
             self.assertEqual(response.json, {"error": "Database error"})
 
-
+# yay i managed to save this - thank you cherrypickkkkk
 # Test for US09 - Manager and Director view team schedule 
-class TestWFHEvents(unittest.TestCase): #OK
+class TestWFHEvents(unittest.TestCase): #OK 
 
     def setUp(self):
         # Set up the test client

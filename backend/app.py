@@ -68,6 +68,22 @@ def log_request_info():
 def index():
     return 'backend is running!', 200
 
+@app.route("/api/manageremail/<mgr_id>", methods=["GET"])
+def get_application_manager_mail(mgr_id):
+    try:
+        response = supabase.table("manager")\
+            .select("email")\
+            .eq("id",mgr_id)\
+            .execute()
+        if response.data:
+            manager_email = response.data[0]['email']  # Assuming the data is a list of dictionaries
+            return jsonify({"email": manager_email}), 200
+        else:
+        # Handle the case where no manager is found or an error occurred
+            return jsonify({"error": "Manager not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/WFHapplicationsManager/<mgr_id>', methods=['GET'])
 def get_applications_manager(mgr_id):
     '''

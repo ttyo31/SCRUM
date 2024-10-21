@@ -46,7 +46,7 @@ import { supabase } from '../utils/supabase';
 import useUser from '../utils/useUser';
 
 // Access the user data from the composable
-const { id, mgr_id, mail } = useUser();
+const { id, mgr_id } = useUser();
 
 const formData = ref({
   staff_id: null,
@@ -64,13 +64,25 @@ onMounted(() => {
   formData.value.staff_id = id.value;
 });
 
-//this one is still using the local host need to change to the new vercel one.
+//this email will be sent to manager for approval upon submission.
 function sendemail(){
+
+  //fit here
+
+  const mgr_url = `https://scrumbackend.vercel.app/api/manageremail/${mgr_id.value}`
   const url = "https://scrumbackend.vercel.app/api/send-email"
-  // mgr_mail = 
-  const message = "There is WFH request to be approved"
+  fetch(mgr_url)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json(); // Parse the JSON response
+  })
+  .then(data => {
+    const email = data.email
+    const message = `There is WFH request by ${id.value} to be approved`
   const payload = {
-    recipient: recipient,
+    recipient: email,
     body:message
   }
   fetch(url, {
@@ -91,6 +103,35 @@ function sendemail(){
     .catch(error => {
       console.error('Error with POST request:', error);
     });
+  })
+  .catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+
+
+  // const message = "There is WFH request to be approved"
+  // const payload = {
+  //   recipient: recipient,
+  //   body:message
+  // }
+  // fetch(url, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',  // Important: specify JSON content type
+  //   },
+  //   body: JSON.stringify(payload),  // Convert the payload to a JSON string
+  // }).then(response => {
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+  //     return response.json();
+  //   })
+  //   .then(data => {
+  //     console.log('POST request successful:', data);
+  //   })
+  //   .catch(error => {
+  //     console.error('Error with POST request:', error);
+  //   });
 }
 
 const onSubmit = async () => {

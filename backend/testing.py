@@ -54,7 +54,7 @@ class TestWorkFromHomeApplication(unittest.TestCase):
         # Assert that the expected message is in the response
         self.assertIn('Email sent and POST request made successfully', response_data['message'])
 
-# unit test for US07 - i hope i'm doing it correctly
+# Test for US09 - Manager and Director view team schedule 
 class TestWFHEvents(unittest.TestCase): #OK
 
     def setUp(self):
@@ -193,7 +193,69 @@ class TestApproveReject(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertIn(b"Application approved, but failed to add entry to staff_wfh.", response.data)
 
+# Test for US08 - Manager view schedule for all departments
+class TestAllWFHEvents(unittest.TestCase): #OK
 
+    @patch('app.supabase')
+    def test_all_wfh_events_success(self, mock_supabase):
+        # Mock staff data
+        mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
+            {"id": 1, "fname": "John", "lname": "Doe", "dept": "IT"},
+            {"id": 2, "fname": "Jane", "lname": "Smith", "dept": "Finance"}
+        ]
+
+        # Mock WFH events data
+        mock_supabase.table.return_value.select.return_value.in_.return_value.execute.return_value.data = [
+            {"id": 1, "wfh_date": "2024-10-21"},
+            {"id": 2, "wfh_date": "2024-10-22"}
+        ]
+
+        # Create a test client
+        with app.test_client() as client:
+            response = client.get('/api/all_wfh_events')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json, [
+                {"fname": "John", "lname": "Doe", "wfh_date": "2024-10-21", "dept": "IT", "empId": 1},
+                {"fname": "Jane", "lname": "Smith", "wfh_date": "2024-10-22", "dept": "Finance", "empId": 2}
+            ])
+
+    @patch('app.supabase')
+    def test_all_wfh_events_no_staff(self, mock_supabase):
+        # Mock empty staff data
+        mock_supabase.table.return_value.select.return_value.execute.return_value.data = []
+
+        # Create a test client
+        with app.test_client() as client:
+            response = client.get('/api/all_wfh_events')
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.json, {"error": "No staff found"})
+
+    @patch('app.supabase')
+    def test_all_wfh_events_staff_error(self, mock_supabase):
+        # Mock an error when fetching staff
+        mock_supabase.table.return_value.select.return_value.execute.side_effect = Exception("Database error")
+
+        # Create a test client
+        with app.test_client() as client:
+            response = client.get('/api/all_wfh_events')
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json, {"error": "Error fetching staff: Database error"})
+
+    @patch('app.supabase')
+    def test_all_wfh_events_wfh_error(self, mock_supabase):
+        # Mock staff data
+        mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
+            {"id": 1, "fname": "John", "lname": "Doe", "dept": "IT"}
+        ]
+
+        # Mock an error when fetching WFH events
+        mock_supabase.table.return_value.select.return_value.in_.return_value.execute.side_effect = Exception("Database error")
+
+        # Create a test client
+        with app.test_client() as client:
+            response = client.get('/api/all_wfh_events')
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(response.json, {"error": "Error fetching WFH events: Database error"})
 
 if __name__ == "__main__":
     unittest.main()

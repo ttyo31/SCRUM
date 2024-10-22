@@ -35,5 +35,15 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run unit test
+      env:  # Pass the secrets to the environment
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        FLASK_DEBUG: ${{ secrets.FLASK_DEBUG }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        MAIL_DEBUG: ${{ secrets.MAIL_DEBUG }}
+        MAIL_USE_SSL: ${{ secrets.MAIL_USE_SSL }}
+        MAIL_USE_TSL: ${{ secrets.MAIL_USE_TSL }}
       run: |
         python backend/testing.py

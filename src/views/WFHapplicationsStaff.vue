@@ -16,7 +16,7 @@
       <!-- Custom row template -->
       <!-- Custom row template -->
       <template v-slot:item="{ item }">
-        <tr>
+        <tr class="hover-row">
           <td>
             <span
               :style="{
@@ -33,10 +33,10 @@
           <td>{{ item.wfh_date }}</td>
           
           <td>
-            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)"  style="background-color: red; color: white;">
+            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)"  class="remove">
               Remove Work From Home
             </button>
-            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)"  style="background-color: yellow; color: black;">
+            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)" class="withdraw">
               Withdraw Application
             </button>
           </td>
@@ -52,6 +52,30 @@
     </v-data-table>
   </v-card>
 </template>
+
+<style scoped>
+button {
+  padding: 8px;
+  margin: 8px;
+}
+.remove:hover {
+  background-color: rgba(255, 0, 0, 0.4);
+  border: solid 2px rgba(135, 206, 250, 0.1);
+}
+.remove {
+  border: solid 2px red;
+}
+.withdraw {
+  border: solid 2px orange;
+}
+.withdraw:hover {
+  background-color: rgba(255, 165, 0, 0.5);
+  border: solid 2px rgba(135, 206, 250, 0.1);
+}
+.hover-row:hover {
+  background-color: rgba(135, 206, 250, 0.1);
+}
+</style>
 
 <script setup>
 import { ref, onMounted } from 'vue';

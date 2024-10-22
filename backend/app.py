@@ -15,7 +15,8 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}) #this is to allow requests from any origin 
 app.config.from_object(Config)
-db = SQLAlchemy(app)
+# this is instantiated but not set, i'll comment this out to test first 
+# db = SQLAlchemy(app)
 
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")

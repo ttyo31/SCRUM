@@ -46,4 +46,4 @@ jobs:
         MAIL_USE_SSL: ${{ secrets.MAIL_USE_SSL }}
         MAIL_USE_TSL: ${{ secrets.MAIL_USE_TSL }}
       run: |
-        python -m unittest discover -v "Unit Test Cases" "*.py"
+        python -m unittest discover -v "backend/Unit Test Cases" "*.py"

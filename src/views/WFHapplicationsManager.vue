@@ -109,12 +109,17 @@ async function approveApplication(item) {
 
     const result = await response.json();
     if (result.success) {
-      // Optionally, you can refresh the list of applications after approval
+      //there seems to be an error to go into the success loop but it actually approves it, so i put it in both success and error
+      items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
+
       sendmail(staff_id);
       fetchApplications(mgr_id);
     }
   } catch (error) {
     console.error("Error approving application:", error);
+    // yeah so i put it over here so it can delete the row too since it's a success 
+    items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
+
   }
 }
 
@@ -141,7 +146,9 @@ async function rejectApplication(item) {
 
     const result = await response.json();
     if (result.success) {
-      // Optionally, you can refresh the list of applications after approval
+      // this would auto delete the row if it is a success yay
+      items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
+
       sendmail(staff_id)
       fetchApplications(mgr_id);
     }

@@ -44,6 +44,8 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../utils/supabase';
 import useUser from '../utils/useUser';
+import { format } from 'date-fns';
+
 
 // Access the user data from the composable
 const { id, mgr_id } = useUser();
@@ -142,7 +144,7 @@ const onSubmit = async () => {
     const applicationData = {
       staff_id: formData.value.staff_id,
       mgr_id: mgr_id.value,  // Use the manager ID from useUser.js
-      wfh_date: formData.value.wfh_date,
+      wfh_date: format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'), //got to reformat the date if not will have timezone issue
       approval: 0, // Default approval status is pending
     };
 
@@ -153,6 +155,8 @@ const onSubmit = async () => {
     if (applicationError) {
       showDialog('Error submitting application: ' + applicationError.message);
     } else {
+      console.log(formData.value.wfh_date);
+      console.log(format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'));
       successDialog.value = true;
       formData.value.wfh_date = null; // Reset the date picker
       sendemail()

@@ -2,40 +2,52 @@
   <div class="about">
     <v-row class="fill-height">
       <v-col>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <v-toolbar-title>Team Dashboard</v-toolbar-title>
-          <div style="display: flex;">
-            <v-select v-if="teamMembers.length > 0" v-model="selectedTeamMember" :items="teamMembers" class="mt-4 w-50" label="Team Member"
-              variant="outlined" outlined dense style="max-width: 200px"></v-select>
-
-            <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined" dense
-              class="mt-4 w-50" style="max-width: 200px; margin-left: 16px;"></v-select>
-
-            <v-select v-model="viewMode" :items="viewModes" label="Select View Mode" outlined variant="outlined" dense
-              class="mt-4 w-50" style="max-width: 200px; margin-left: 16px;"></v-select>
+        <div style="display: flex; justify-content: flex-end; align-items: center; width: 100%;">
+          <!-- Adjust Dropdown Width, Styling, and Margin -->
+          <div style="max-width: 300px; margin-right: 20px; margin-top: 40px;">
+            <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined" dense></v-select>
           </div>
         </div>
 
         <v-sheet height="600" class="mt-4">
+          <!-- Calendar or Dashboard View based on selection -->
           <template v-if="viewType === 'Calendar'">
+            <!-- Calendar View -->
             <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary"
-              :type="viewMode" v-if="calendarReady"></v-calendar>
+              type="month" v-if="calendarReady"></v-calendar>
           </template>
           <template v-else>
+            <!-- Dashboard View (Table) -->
             <div style="display: flex; flex-direction: column; align-items: center;">
+              <!-- Search query input for dashboard mode -->
+              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
+                style="max-width: 300px" />
+
               <v-simple-table class="elevation-1">
                 <thead>
                   <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
-                    <th style="padding: 8px;">Team Member</th>
-                    <th style="padding: 8px;">Location</th>
-                    <th style="padding: 8px;">Date</th>
+                    <th style="padding: 8px;">Employee Name</th>
+                    <th v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd;">
+                      {{ formatDate(day) }}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="event in filteredEvents" :key="event.empId">
-                    <td style="padding: 8px;">{{ event.title }}</td>
-                    <td :style="{ color: event.location === 'WFH' ? 'blue' : 'green' }">{{ event.location }}</td>
-                    <td style="padding: 8px;">{{ event.start.toLocaleDateString() }}</td>
+                  <tr v-for="employee in filteredEmployees" :key="employee.id" style="border: 1px solid #ddd;">
+                    <td style="padding: 8px; border-right: 1px solid #ddd;">
+                      {{ employee.name }}
+                    </td>
+                    <td v-for="day in next7Days" :key="day"
+                      style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
+                      <template v-if="day.getDay() === 0 || day.getDay() === 6">
+                        <!-- Check for Sunday (0) or Saturday (6) -->
+                        <span :style="{ color: 'orange' }">Weekend</span>
+                      </template>
+                      <template v-else>
+                        <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
+                        <span :style="{ color: 'green' }" v-else>Office</span>
+                      </template>
+                    </td>
                   </tr>
                 </tbody>
               </v-simple-table>
@@ -48,147 +60,88 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { format } from 'date-fns'; // Import date-fns for date formatting
 
 export default {
   name: 'TeamSchedule',
   setup() {
     const today = ref(new Date());
     const events = ref([]);
-    const teamMembers = ref([]);
-    const selectedTeamMember = ref('All');
-    const viewType = ref('Calendar');
+    const employees = ref([]);
+    const viewType = ref('Dashboard'); // Default to Dashboard view
     const viewTypes = ref(['Calendar', 'Dashboard']);
-    const viewMode = ref('Month');
-    const viewModes = ref(['Day', 'Week', 'Month']);
-    const calendarReady = ref(false);
+    const searchQuery = ref(''); // Search query reactive variable
 
-    // Function to format event title with location indicator
-    function formatEventTitle(event) {
-      const location = event.location === 'WFH' ? '(WFH)' : '(Office)';
-      return `${event.title} ${location}`;
-    }
+    // Date range for the next 7 days
+    const next7Days = computed(() => {
+      const days = [];
+      const startOfWeek = new Date(today.value);
+      const dayOfWeek = startOfWeek.getDay();
+      startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1); // Set to Monday
 
-    // Filter events based on selected team member
-    const filteredEvents = computed(() => {
-      return events.value
-        .map(event => ({
-          ...event,
-          title: formatEventTitle(event),
-          color: event.location === 'WFH' ? 'blue' : 'green', // Highlight location
-        }))
-        .filter(event =>
-          selectedTeamMember.value === 'All' || event.empId === selectedTeamMember.value
-        );
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        days.push(date);
+      }
+      return days;
     });
 
-    // Watch for changes in selectedTeamMember to fetch specific events
-    watch(selectedTeamMember, async (newVal) => {
-      if (newVal) {
-        await fetchStaffEvents(newVal);
-      }
-    });
-
-    // Fetch WFH events from backend for a specific manager and team member
-    async function fetchStaffEvents(teamMemberID) {
-      try {
-        if (teamMemberID === 'All') {
-          await fetchOverallEvents();
-        } else {
-          const response = await axios.get(
-            `https://scrum-backend.vercel.app/api/wfh_events/${teamMemberID}`
-          );
-          if (response.data) {
-            events.value = response.data.map(event => ({
-              title: `${event.fname} ${event.lname}`,
-              start: new Date(event.wfh_date),
-              end: new Date(event.wfh_date),
-              color: event.location === 'WFH' ? 'blue' : 'green',
-              allDay: true,
-              location: event.location,
-              empId: event.empId,
-            }));
-          }
-        }
-      } catch (error) {
-        console.error(
-          'Error fetching WFH events:',
-          error.response ? error.response.data : error.message
-        );
-      }
-    }
-
-    // Fetch all events
+    // Fetch events and employees from backend
     async function fetchOverallEvents() {
       try {
-        const response = await axios.get(
-          `https://scrum-backend.vercel.app/api/all_wfh_events`
-        );
-        if (response.data) {
-          events.value = response.data.map(event => ({
-            title: `${event.fname} ${event.lname}`,
-            start: new Date(event.wfh_date),
-            end: new Date(event.wfh_date),
-            color: event.location === 'WFH' ? 'blue' : 'green',
-            allDay: true,
-            location: event.location,
-            empId: event.empId,
-          }));
-          calendarReady.value = true; // Calendar is now ready to be rendered
-        }
+        const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`);
+        const employeesResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_employees`);
+
+        events.value = eventsResponse.data.map(event => ({
+          title: `${event.fname} ${event.lname}`,
+          start: new Date(event.wfh_date),
+          empId: event.empId,
+          location: event.location,
+        }));
+
+        employees.value = employeesResponse.data.map(employee => ({
+          id: employee.id,
+          name: `${employee.fname} ${employee.lname}`,
+        }));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     }
 
-    // Fetch team members with improved error handling
-    async function fetchTeamMembers() {
-      try {
-        const response = await axios.get(
-          `https://scrum-backend.vercel.app/api/all_employees`
-        );
-        if (response.data && Array.isArray(response.data)) {
-          teamMembers.value = response.data.map(member => ({
-            id: member.id,
-            name: `${member.fname} ${member.lname}`,
-          }));
-        } else {
-          console.error('Unexpected response structure:', response.data);
-        }
-      } catch (error) {
-        console.error(
-          'Error fetching team members:',
-          error.response ? error.response.data : error.message
-        );
-        // Provide fallback data to avoid breaking the UI
-        teamMembers.value = [
-          { id: '1', name: 'John Doe' },
-          { id: '2', name: 'Jane Smith' },
-        ];
-      }
+    // Filter employees based on search query
+    const filteredEmployees = computed(() => {
+      return employees.value.filter(employee =>
+        employee.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    });
+
+    // Check if employee is on WFH
+    function isOnWFH(employee, day) {
+      return events.value.some(event => event.empId === employee.id && event.start.toDateString() === day.toDateString());
+    }
+
+    // Format date as MMM dd
+    function formatDate(date) {
+      return format(date, 'MMM dd');
     }
 
     // Lifecycle hook for component mount
-    onMounted(async () => {
-      try {
-        await fetchTeamMembers();
-        await fetchOverallEvents();
-      } catch (e) {
-        console.error('Error during component mount:', e.message);
-      }
+    onMounted(() => {
+      fetchOverallEvents();
     });
 
     return {
       today,
-      teamMembers,
-      selectedTeamMember,
       viewType,
       viewTypes,
-      viewMode,
-      viewModes,
-      filteredEvents,
-      calendarReady,
+      searchQuery,
+      next7Days,
+      filteredEmployees,
+      isOnWFH,
+      formatDate,
     };
   },
 };

@@ -1,7 +1,13 @@
+import sys
+import os
 import unittest
 from unittest.mock import patch
 from flask import json
-from app import app 
+
+# Adjust the path to include the parent directory
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from app import app
 
 # Test for US06 - manager can approve and reject WFH request
 class TestApproveReject(unittest.TestCase):

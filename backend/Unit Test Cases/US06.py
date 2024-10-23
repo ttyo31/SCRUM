@@ -112,3 +112,7 @@ class TestApproveReject(unittest.TestCase):
         # Check if the failure response for staff_wfh insertion is correct
         self.assertEqual(response.status_code, 500)
         self.assertIn(b"Application approved, but failed to add entry to staff_wfh.", response.data)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -3,26 +3,18 @@
     <v-row class="fill-height">
       <v-col>
         <div style="display: flex; justify-content: flex-end; align-items: center; width: 100%;">
-          <!-- Adjust Dropdown Width, Styling, and Margin -->
           <div style="max-width: 300px; margin-right: 20px; margin-top: 40px;">
             <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined" dense></v-select>
           </div>
         </div>
 
         <v-sheet height="600" class="mt-4">
-          <!-- Calendar or Dashboard View based on selection -->
           <template v-if="viewType === 'Calendar'">
-            <!-- Calendar View -->
-            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary"
-              type="month" v-if="calendarReady"></v-calendar>
+            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary" type="month" v-if="calendarReady"></v-calendar>
           </template>
           <template v-else>
-            <!-- Dashboard View (Table) -->
             <div style="display: flex; flex-direction: column; align-items: center;">
-              <!-- Search query input for dashboard mode -->
-              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
-                style="max-width: 300px" />
-
+              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense style="max-width: 300px" />
               <v-simple-table class="elevation-1">
                 <thead>
                   <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
@@ -37,10 +29,8 @@
                     <td style="padding: 8px; border-right: 1px solid #ddd;">
                       {{ employee.name }}
                     </td>
-                    <td v-for="day in next7Days" :key="day"
-                      style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
+                    <td v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
                       <template v-if="day.getDay() === 0 || day.getDay() === 6">
-                        <!-- Check for Sunday (0) or Saturday (6) -->
                         <span :style="{ color: 'orange' }">Weekend</span>
                       </template>
                       <template v-else>
@@ -62,7 +52,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-import { format } from 'date-fns'; // Import date-fns for date formatting
+import { format } from 'date-fns';
 
 export default {
   name: 'TeamSchedule',
@@ -70,16 +60,15 @@ export default {
     const today = ref(new Date());
     const events = ref([]);
     const employees = ref([]);
-    const viewType = ref('Dashboard'); // Default to Dashboard view
+    const viewType = ref('Dashboard');
     const viewTypes = ref(['Calendar', 'Dashboard']);
-    const searchQuery = ref(''); // Search query reactive variable
+    const searchQuery = ref('');
 
-    // Date range for the next 7 days
     const next7Days = computed(() => {
       const days = [];
       const startOfWeek = new Date(today.value);
       const dayOfWeek = startOfWeek.getDay();
-      startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1); // Set to Monday
+      startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1);
 
       for (let i = 0; i < 7; i++) {
         const date = new Date(startOfWeek);
@@ -89,7 +78,6 @@ export default {
       return days;
     });
 
-    // Fetch events and employees from backend
     async function fetchOverallEvents() {
       try {
         const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`);
@@ -111,24 +99,20 @@ export default {
       }
     }
 
-    // Filter employees based on search query
     const filteredEmployees = computed(() => {
       return employees.value.filter(employee =>
         employee.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     });
 
-    // Check if employee is on WFH
     function isOnWFH(employee, day) {
       return events.value.some(event => event.empId === employee.id && event.start.toDateString() === day.toDateString());
     }
 
-    // Format date as MMM dd
     function formatDate(date) {
       return format(date, 'MMM dd');
     }
 
-    // Lifecycle hook for component mount
     onMounted(() => {
       fetchOverallEvents();
     });

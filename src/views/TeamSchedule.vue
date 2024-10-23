@@ -9,49 +9,55 @@
           </div>
         </div>
 
+        <!-- Display loading spinner while fetching data -->
         <v-sheet height="600" class="mt-4">
-          <template v-if="viewType === 'Calendar'">
-            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary" type="month"
-              v-if="calendarReady"></v-calendar>
-          </template>
+          <div v-if="!calendarReady" class="d-flex justify-center align-center" >
+            <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
+          </div>
+
           <template v-else>
-            <div style="display: flex; flex-direction: column; align-items: center;">
-              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
-                style="max-width: 300px" />
-              <v-simple-table class="elevation-1">
-                <thead>
-                  <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
-                    <th style="padding: 8px;">Employee Name</th>
-                    <th v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd;">
-                      {{ formatDate(day) }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="employee in filteredEmployees" :key="employee.id" style="border: 1px solid #ddd;">
-                    <td style="padding: 8px; border-right: 1px solid #ddd;">
-                      {{ employee.name }}
-                    </td>
-                    <td v-for="day in next7Days" :key="day"
-                      style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
-                      <template v-if="day.getDay() === 0 || day.getDay() === 6">
-                        <span :style="{ color: 'orange' }">Weekend</span>
-                      </template>
-                      <template v-else>
-                        <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
-                        <span :style="{ color: 'green' }" v-else>Office</span>
-                      </template>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
-            </div>
+            <template v-if="viewType === 'Calendar'">
+              <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary"
+                type="month"></v-calendar>
+            </template>
+            <template v-else>
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
+                  style="max-width: 300px" />
+                <v-simple-table class="elevation-1">
+                  <thead>
+                    <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
+                      <th style="padding: 8px;">Employee Name</th>
+                      <th v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd;">
+                        {{ formatDate(day) }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="employee in filteredEmployees" :key="employee.id" style="border: 1px solid #ddd;">
+                      <td style="padding: 8px; border-right: 1px solid #ddd;">{{ employee.name }}</td>
+                      <td v-for="day in next7Days" :key="day"
+                        style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
+                        <template v-if="day.getDay() === 0 || day.getDay() === 6">
+                          <span :style="{ color: 'orange' }">Weekend</span>
+                        </template>
+                        <template v-else>
+                          <span :style="{ color: 'red' }" v-if="isOnWFH(employee, day)">WFH</span>
+                          <span :style="{ color: 'green' }" v-else>Office</span>
+                        </template>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </div>
+            </template>
           </template>
         </v-sheet>
       </v-col>
     </v-row>
   </div>
 </template>
+
 
 <script>
 import { ref, computed, onMounted } from 'vue';
@@ -101,11 +107,11 @@ export default {
           }));
 
         employees.value = employeesResponse.data
-        .filter(employees => employees.dept === dept.value)
-        .map(employee => ({
-          id: employee.id,
-          name: `${employee.fname} ${employee.lname}`,
-        }));
+          .filter(employees => employees.dept === dept.value)
+          .map(employee => ({
+            id: employee.id,
+            name: `${employee.fname} ${employee.lname}`,
+          }));
 
         calendarReady.value = true; // Set calendar ready after data is successfully fetched
       } catch (error) {

@@ -37,7 +37,7 @@
         </template>
         
         <v-list class="transparent-dropdown" style="width: 100;">
-          <v-list-item>
+          <v-list-item v-if="id != '130002'">
             <router-link to="/WFHrequestForm">
               <v-list-item-title>Request Form</v-list-item-title>
             </router-link>

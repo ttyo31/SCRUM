@@ -4,17 +4,20 @@
       <v-col>
         <div style="display: flex; justify-content: flex-end; align-items: center; width: 100%;">
           <div style="max-width: 300px; margin-right: 20px; margin-top: 40px;">
-            <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined" dense></v-select>
+            <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined"
+              dense></v-select>
           </div>
         </div>
 
         <v-sheet height="600" class="mt-4">
           <template v-if="viewType === 'Calendar'">
-            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary" type="month" v-if="calendarReady"></v-calendar>
+            <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary" type="month"
+              v-if="calendarReady"></v-calendar>
           </template>
           <template v-else>
             <div style="display: flex; flex-direction: column; align-items: center;">
-              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense style="max-width: 300px" />
+              <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
+                style="max-width: 300px" />
               <v-simple-table class="elevation-1">
                 <thead>
                   <tr style="border-bottom: 2px solid #000; background-color: #f5f5f5;">
@@ -29,7 +32,8 @@
                     <td style="padding: 8px; border-right: 1px solid #ddd;">
                       {{ employee.name }}
                     </td>
-                    <td v-for="day in next7Days" :key="day" style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
+                    <td v-for="day in next7Days" :key="day"
+                      style="padding: 8px; border-right: 1px solid #ddd; text-align: center;">
                       <template v-if="day.getDay() === 0 || day.getDay() === 6">
                         <span :style="{ color: 'orange' }">Weekend</span>
                       </template>
@@ -53,6 +57,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { format } from 'date-fns';
+import useUser from '../utils/useUser';
 
 export default {
   name: 'TeamSchedule',
@@ -60,10 +65,11 @@ export default {
     const today = ref(new Date());
     const events = ref([]);
     const employees = ref([]);
-    const viewType = ref('Dashboard');
+    const viewType = ref('Calendar');
     const viewTypes = ref(['Calendar', 'Dashboard']);
     const searchQuery = ref('');
     const calendarReady = ref(false);
+    const { dept } = useUser();
 
     const next7Days = computed(() => {
       const days = [];
@@ -79,19 +85,24 @@ export default {
       return days;
     });
 
-    async function fetchOverallEvents() {
+    async function fetchTeamEvents() {
       try {
         const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`);
         const employeesResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_employees`);
 
-        events.value = eventsResponse.data.map(event => ({
-          title: `${event.fname} ${event.lname}`,
-          start: new Date(event.wfh_date),
-          empId: event.empId,
-          location: event.location,
-        }));
+        // Assuming dept.value is defined and available
+        events.value = eventsResponse.data
+          .filter(event => event.dept === dept.value) // Only include events where dept matches dept.value
+          .map(event => ({
+            title: `${event.fname} ${event.lname}`,
+            start: new Date(event.wfh_date),
+            empId: event.empId,
+            location: event.location,
+          }));
 
-        employees.value = employeesResponse.data.map(employee => ({
+        employees.value = employeesResponse.data
+        .filter(employees => employees.dept === dept.value)
+        .map(employee => ({
           id: employee.id,
           name: `${employee.fname} ${employee.lname}`,
         }));
@@ -102,6 +113,7 @@ export default {
         calendarReady.value = false;
       }
     }
+
 
     const filteredEmployees = computed(() => {
       return employees.value.filter(employee =>
@@ -118,7 +130,7 @@ export default {
     }
 
     onMounted(() => {
-      fetchOverallEvents();
+      fetchTeamEvents();
     });
 
     return {
@@ -148,6 +160,7 @@ export default {
   color: black;
   border: solid 1px black;
 }
+
 .black-button:hover {
   background-color: black;
   color: white;

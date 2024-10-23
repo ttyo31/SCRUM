@@ -63,6 +63,7 @@ export default {
     const viewType = ref('Dashboard');
     const viewTypes = ref(['Calendar', 'Dashboard']);
     const searchQuery = ref('');
+    const calendarReady = ref(false);
 
     const next7Days = computed(() => {
       const days = [];
@@ -94,8 +95,11 @@ export default {
           id: employee.id,
           name: `${employee.fname} ${employee.lname}`,
         }));
+
+        calendarReady.value = true; // Set calendar ready after data is successfully fetched
       } catch (error) {
         console.error('Error fetching data:', error);
+        calendarReady.value = false;
       }
     }
 
@@ -126,6 +130,7 @@ export default {
       filteredEmployees,
       isOnWFH,
       formatDate,
+      calendarReady,
     };
   },
 };

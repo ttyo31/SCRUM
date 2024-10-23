@@ -117,9 +117,6 @@ async function approveApplication(item) {
     }
   } catch (error) {
     console.error("Error approving application:", error);
-    // yeah so i put it over here so it can delete the row too since it's a success 
-    items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
-
   }
 }
 

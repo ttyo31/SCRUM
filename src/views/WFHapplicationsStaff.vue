@@ -151,6 +151,11 @@ function removeWfh(date,id){
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       sendmail()
+      // auto remove the row after clicking on remove yay
+      const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
+      if (index !== -1) {
+        items.value.splice(index, 1);  // Remove the item from the array
+      }
       return response.json();
     })
     .then(data => {
@@ -178,7 +183,12 @@ function withdraw_application(date,id){
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      sendmail()
+      sendmail() 
+      // auto remove the row after withdraw is clicked woohoo
+      const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
+      if (index !== -1) {
+        items.value.splice(index, 1);  // Remove the item from the array
+      }
       return response.json();
       
     })

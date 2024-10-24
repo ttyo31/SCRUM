@@ -14,7 +14,6 @@
       </template>
 
       <!-- Custom row template -->
-      <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr>
           <td>{{ item.approval }}</td>
@@ -31,6 +30,19 @@
       </template>
 
     </v-data-table>
+
+    <!-- Modal for Approval/Rejection Notification -->
+    <v-dialog v-model="modalVisible" max-width="400">
+      <v-card>
+        <v-card-title class="headline">{{ modalTitle }}</v-card-title>
+        <v-card-text>{{ modalMessage }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="modalVisible = false">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  
   </v-card>
 </template>
 
@@ -43,6 +55,10 @@ const { id, mail } = useUser();
 console.log(id);
 
 const items = ref([]);
+const modalVisible = ref(false);  // Controls the visibility of the modal
+const modalTitle = ref("");       // Title for the modal (e.g., Approved/Rejected)
+const modalMessage = ref("");     // Message for the modal (e.g., Your request has been approved/rejected)
+
 
 function sendmail(){
  const url = "https://scrumbackend.vercel.app/api/send-email"
@@ -112,6 +128,11 @@ async function approveApplication(item) {
       //there seems to be an error to go into the success loop but it actually approves it, so i put it in both success and error
       items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
 
+      // Show the modal with the success message
+      modalTitle.value = "Approved";
+      modalMessage.value = "The request has been approved successfully.";
+      modalVisible.value = true;
+
       sendmail(staff_id);
       fetchApplications(mgr_id);
     }
@@ -145,6 +166,12 @@ async function rejectApplication(item) {
     if (result.success) {
       // this would auto delete the row if it is a success yay
       items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
+
+      // Show the modal with the rejection message
+      modalTitle.value = "Rejected";
+      modalMessage.value = "The request has been rejected.";
+      modalVisible.value = true;
+
 
       sendmail(staff_id)
       fetchApplications(mgr_id);

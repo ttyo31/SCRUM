@@ -14,7 +14,6 @@
       </template>
 
       <!-- Custom row template -->
-      <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr class="hover-row">
           <td>
@@ -50,6 +49,19 @@
       </template>
 
     </v-data-table>
+
+    <!-- Modal for Approval/Rejection Notification -->
+    <v-dialog v-model="modalVisible" max-width="400">
+      <v-card>
+        <v-card-title class="headline">{{ modalTitle }}</v-card-title>
+        <v-card-text>{{ modalMessage }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="modalVisible = false">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-card>
 </template>
 
@@ -82,6 +94,11 @@ import { ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
 
 const items = ref([]);
+
+const modalVisible = ref(false);  // Controls the visibility of the modal
+const modalTitle = ref("");       // Title for the modal 
+const modalMessage = ref("");     // Message for the modal 
+
 // const headers = [
 //   { text: 'Mgr_id', value: 'mgr_id' },
 //   { text: 'Staff_id', value: 'staff_id' },
@@ -150,6 +167,13 @@ function removeWfh(date,id){
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      // Show the modal with the success message
+      modalTitle.value = "Removed";
+      modalMessage.value = "The request has been removed successfully.";
+      modalVisible.value = true;
+
+      
       sendmail()
       // auto remove the row after clicking on remove yay
       const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
@@ -183,6 +207,13 @@ function withdraw_application(date,id){
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      // Show the modal with the success message
+      modalTitle.value = "Withdrawn";
+      modalMessage.value = "The request has been withdrawn successfully.";
+      modalVisible.value = true;
+
+
       sendmail() 
       // auto remove the row after withdraw is clicked woohoo
       const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);

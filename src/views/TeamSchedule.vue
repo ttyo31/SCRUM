@@ -11,7 +11,7 @@
 
         <!-- Display loading spinner while fetching data -->
         <v-sheet height="600" class="mt-4">
-          <div v-if="!calendarReady" class="d-flex justify-center align-center" >
+          <div v-if="!calendarReady" class="d-flex justify-center align-center">
             <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
           </div>
 

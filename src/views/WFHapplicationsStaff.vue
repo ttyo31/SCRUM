@@ -1,11 +1,6 @@
 <template>
   <v-card class="pa-4 ma-16" elevation="7">
-    <v-data-table
-      :items="items"
-      :headers="headers"
-      class="elevation-1"
-      :items-per-page="5"
-    >
+    <v-data-table v-if="!loading" :items="items" :headers="headers" class="elevation-1" :items-per-page="5">
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>Staff Applications List</v-toolbar-title>
@@ -17,11 +12,9 @@
       <template v-slot:item="{ item }">
         <tr class="hover-row">
           <td>
-            <span
-              :style="{
-                color: item.approval === 1 ? 'green' : item.approval === 2 ? 'red' : 'orange'
-              }"
-            >
+            <span :style="{
+              color: item.approval === 1 ? 'green' : item.approval === 2 ? 'red' : 'orange'
+            }">
               {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
             </span>
           </td>
@@ -30,12 +23,13 @@
           <!-- Display the staff name with the ID -->
           <td>{{ item.staff_id }} {{ item.staff_name }}</td>
           <td>{{ item.wfh_date }}</td>
-          
+
           <td>
-            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)"  class="remove">
+            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)" class="remove">
               Remove Work From Home
             </button>
-            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)" class="withdraw">
+            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)"
+              class="withdraw">
               Withdraw Application
             </button>
           </td>
@@ -49,6 +43,11 @@
       </template>
 
     </v-data-table>
+
+    <!-- Display loading spinner while data is being fetched -->
+    <v-container v-if="loading" class="d-flex justify-center align-center" style="height: 200px;">
+      <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
+    </v-container>
 
     <!-- Modal for Approval/Rejection Notification -->
     <v-dialog v-model="modalVisible" max-width="400">
@@ -70,20 +69,25 @@ button {
   padding: 8px;
   margin: 8px;
 }
+
 .remove:hover {
   background-color: rgba(255, 0, 0, 0.4);
   border: solid 2px rgba(135, 206, 250, 0.1);
 }
+
 .remove {
   border: solid 2px red;
 }
+
 .withdraw {
   border: solid 2px orange;
 }
+
 .withdraw:hover {
   background-color: rgba(255, 165, 0, 0.5);
   border: solid 2px rgba(135, 206, 250, 0.1);
 }
+
 .hover-row:hover {
   background-color: rgba(135, 206, 250, 0.1);
 }
@@ -97,7 +101,9 @@ const items = ref([]);
 
 const modalVisible = ref(false);  // Controls the visibility of the modal
 const modalTitle = ref("");       // Title for the modal 
-const modalMessage = ref("");     // Message for the modal 
+const modalMessage = ref("");     // Message for the modal
+const loading = ref(true);  // Add loading state
+
 
 // const headers = [
 //   { text: 'Mgr_id', value: 'mgr_id' },
@@ -106,14 +112,14 @@ const modalMessage = ref("");     // Message for the modal
 //   { text: 'Approval', value: 'approval' }
 // ];
 
-const { id,mail } = useUser();
+const { id, mail } = useUser();
 
-function sendmail(){
- const url = "https://scrumbackend.vercel.app/api/send-email"
+function sendmail() {
+  const url = "https://scrumbackend.vercel.app/api/send-email"
   const emailurl = mail.value
   const payload = {
     recipient: emailurl,
-    body:"Your WFH date has been changed"
+    body: "Your WFH date has been changed"
   }
   fetch(url, {
     method: 'POST',
@@ -122,11 +128,11 @@ function sendmail(){
     },
     body: JSON.stringify(payload),  // Convert the payload to a JSON string
   }).then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
     .then(data => {
       console.log('POST request successful:', data);
     })
@@ -145,9 +151,11 @@ async function fetchApplications(staff_id) {
     items.value = data;  // Update your items state
   } catch (error) {
     console.error("Error fetching applications:", error);
+  } finally {
+    loading.value = false;  // Set loading to false after data is fetched
   }
 }
-function removeWfh(date,id){
+function removeWfh(date, id) {
   console.log("this is to remove")
   console.log(date)
   console.log(id.split(" ")[0]) //this is coz staff_id returns id then the name
@@ -164,26 +172,26 @@ function removeWfh(date,id){
     },
     body: JSON.stringify(payload),  // Convert the payload to a JSON string
   }).then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      // Show the modal with the success message
-      modalTitle.value = "Removed";
-      modalMessage.value = "The request has been removed successfully.";
-      modalVisible.value = true;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-      
-      sendmail()
-      // auto remove the row after clicking on remove yay
-      const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
-      if (index !== -1) {
-        items.value.splice(index, 1);  // Remove the item from the array
-      }
-      return response.json();
-    })
+    // Show the modal with the success message
+    modalTitle.value = "Removed";
+    modalMessage.value = "The request has been removed successfully.";
+    modalVisible.value = true;
+
+
+    sendmail()
+    // auto remove the row after clicking on remove yay
+    const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
+    if (index !== -1) {
+      items.value.splice(index, 1);  // Remove the item from the array
+    }
+    return response.json();
+  })
     .then(data => {
-    
+
       console.log('POST request successful:', data);
     })
     .catch(error => {
@@ -191,7 +199,7 @@ function removeWfh(date,id){
     });
 }
 
-function withdraw_application(date,id){
+function withdraw_application(date, id) {
   const url = "https://scrum-backend.vercel.app/api/withdraw_application"
   const payload = {
     id: id.split(" ")[0],
@@ -204,27 +212,27 @@ function withdraw_application(date,id){
     },
     body: JSON.stringify(payload),  // Convert the payload to a JSON string
   }).then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-      // Show the modal with the success message
-      modalTitle.value = "Withdrawn";
-      modalMessage.value = "The request has been withdrawn successfully.";
-      modalVisible.value = true;
+    // Show the modal with the success message
+    modalTitle.value = "Withdrawn";
+    modalMessage.value = "The request has been withdrawn successfully.";
+    modalVisible.value = true;
 
 
-      sendmail() 
-      // auto remove the row after withdraw is clicked woohoo
-      const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
-      if (index !== -1) {
-        items.value.splice(index, 1);  // Remove the item from the array
-      }
-      return response.json();
-      
-    })
+    sendmail()
+    // auto remove the row after withdraw is clicked woohoo
+    const index = items.value.findIndex(item => item.wfh_date === date && item.staff_id.split(" ")[0] === id.split(" ")[0]);
+    if (index !== -1) {
+      items.value.splice(index, 1);  // Remove the item from the array
+    }
+    return response.json();
+
+  })
     .then(data => {
-      
+
       console.log('POST request successful:', data);
     })
     .catch(error => {

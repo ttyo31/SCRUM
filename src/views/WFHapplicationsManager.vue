@@ -1,6 +1,7 @@
 <template>
   <v-card class="pa-4 ma-16" elevation="7">
     <v-data-table
+      v-if="!loading"
       :items="items"
       :headers="headers"
       class="elevation-1"
@@ -28,8 +29,12 @@
           </td>
         </tr>
       </template>
-
     </v-data-table>
+
+    <!-- Display loading spinner while data is being fetched -->
+    <v-container v-if="loading" class="d-flex justify-center align-center" style="height: 200px;">
+      <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
+    </v-container>
 
     <!-- Modal for Approval/Rejection Notification -->
     <v-dialog v-model="modalVisible" max-width="400">
@@ -42,9 +47,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  
+
   </v-card>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -55,10 +61,10 @@ const { id, mail } = useUser();
 console.log(id);
 
 const items = ref([]);
+const loading = ref(true);  // Add loading state
 const modalVisible = ref(false);  // Controls the visibility of the modal
 const modalTitle = ref("");       // Title for the modal (e.g., Approved/Rejected)
 const modalMessage = ref("");     // Message for the modal (e.g., Your request has been approved/rejected)
-
 
 function sendmail(){
  const url = "https://scrumbackend.vercel.app/api/send-email"
@@ -88,25 +94,26 @@ function sendmail(){
 }
 
 async function fetchApplications(mgr_id) {
+  loading.value = true;  // Set loading to true before fetching data
   try {
     const response = await fetch(`https://scrum-backend.vercel.app/api/WFHapplicationsManager/${mgr_id}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    
     items.value = data;
   } catch (error) {
     console.error("Error fetching applications:", error);
+  } finally {
+    loading.value = false;  // Set loading to false after data is fetched
   }
 }
 
 async function approveApplication(item) {
   try {
     console.log("Approve")
-    // Strip the names from staff_id and mgr_id, only send the IDs
-    const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
-    const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
+    const staff_id = item.staff_id.split(" ")[0];
+    const mgr_id = item.mgr_id.split(" ")[0];
     const response = await fetch('https://scrumbackend.vercel.app/api/approve_application', {
       method: 'POST',
       headers: {
@@ -125,14 +132,10 @@ async function approveApplication(item) {
 
     const result = await response.json();
     if (result.success) {
-      //there seems to be an error to go into the success loop but it actually approves it, so i put it in both success and error
       items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
-
-      // Show the modal with the success message
       modalTitle.value = "Approved";
       modalMessage.value = "The request has been approved successfully.";
       modalVisible.value = true;
-
       sendmail(staff_id);
       fetchApplications(mgr_id);
     }
@@ -143,9 +146,8 @@ async function approveApplication(item) {
 
 async function rejectApplication(item) {
   try {
-    // Strip the names from staff_id and mgr_id, only send the IDs
-    const staff_id = item.staff_id.split(" ")[0]; // Take the part before the space
-    const mgr_id = item.mgr_id.split(" ")[0];     // Take the part before the space
+    const staff_id = item.staff_id.split(" ")[0];
+    const mgr_id = item.mgr_id.split(" ")[0];
     const response = await fetch('https://scrum-backend.vercel.app/api/reject_application', {
       method: 'POST',
       headers: {
@@ -164,16 +166,11 @@ async function rejectApplication(item) {
 
     const result = await response.json();
     if (result.success) {
-      // this would auto delete the row if it is a success yay
       items.value = items.value.filter(app => app.staff_id !== item.staff_id || app.wfh_date !== item.wfh_date);
-
-      // Show the modal with the rejection message
       modalTitle.value = "Rejected";
       modalMessage.value = "The request has been rejected.";
       modalVisible.value = true;
-
-
-      sendmail(staff_id)
+      sendmail(staff_id);
       fetchApplications(mgr_id);
     }
   } catch (error) {
@@ -181,10 +178,9 @@ async function rejectApplication(item) {
   }
 }
 
-
 onMounted(() => {
   const mgr_id = id.value;
   fetchApplications(mgr_id);
 });
-
 </script>
+

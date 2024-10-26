@@ -33,7 +33,7 @@ const events = ref([]);
 async function fetchUserEvents() {
   try {
     const { data, error } = await supabase
-      .from('applications')
+      .from('staff_wfh')
       .select('wfh_date')
       .eq('staff_id', userId.value); // Use staff_id to match the logged-in user
 

@@ -139,6 +139,12 @@ function sendemail(){
 const onSubmit = async () => {
   if (!valid.value) return;
 
+    // Check if date is selected
+    if (!formData.value.wfh_date) {
+    showDialog('Please select a date before submitting your request.');
+    return;
+  }
+
   try {
     // Since mgr_id is available from useUser.js, no need to fetch from Supabase again
     const applicationData = {
@@ -153,8 +159,13 @@ const onSubmit = async () => {
       .insert([applicationData]);
 
     if (applicationError) {
-      showDialog('Error submitting application: ' + applicationError.message);
-    } else {
+      // Check for duplicate key constraint error
+      if (applicationError.message.includes("duplicate key value violates unique constraint")) {
+        showDialog("You already have an existing request for this date.");
+      } else {
+        showDialog('Error submitting application: ' + applicationError.message);
+      }
+      } else {
       console.log(formData.value.wfh_date);
       console.log(format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'));
       successDialog.value = true;

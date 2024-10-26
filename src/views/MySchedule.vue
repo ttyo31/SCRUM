@@ -35,7 +35,7 @@ async function fetchUserEvents() {
     const { data, error } = await supabase
       .from('staff_wfh')
       .select('wfh_date')
-      .eq('staff_id', userId.value); // Use staff_id to match the logged-in user
+      .eq('id', userId.value); // id to match the logged-in user
 
     if (error) {
       console.error('Error fetching events:', error);

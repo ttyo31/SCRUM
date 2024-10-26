@@ -44,8 +44,7 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../utils/supabase';
 import useUser from '../utils/useUser';
-import { format } from 'date-fns';
-
+import { format, isBefore, startOfDay } from 'date-fns';
 
 // Access the user data from the composable
 const { id, mgr_id } = useUser();
@@ -145,27 +144,36 @@ const onSubmit = async () => {
     return;
   }
 
-  try {
-    // Since mgr_id is available from useUser.js, no need to fetch from Supabase again
-    const applicationData = {
-      staff_id: formData.value.staff_id,
-      mgr_id: mgr_id.value,  // Use the manager ID from useUser.js
-      wfh_date: format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'), //got to reformat the date if not will have timezone issue
-      approval: 0, // Default approval status is pending
-    };
+// Check if the selected date is in the past
+const today = startOfDay(new Date());
+const selectedDate = startOfDay(new Date(formData.value.wfh_date));
 
-    const { error: applicationError } = await supabase
-      .from('applications')
-      .insert([applicationData]);
+if (isBefore(selectedDate, today)) {
+  showDialog("You cannot select a past date. Please choose a valid date.");
+  return;
+}
 
-    if (applicationError) {
-      // Check for duplicate key constraint error
-      if (applicationError.message.includes("duplicate key value violates unique constraint")) {
-        showDialog("You already have an existing request for this date.");
-      } else {
-        showDialog('Error submitting application: ' + applicationError.message);
-      }
-      } else {
+try {
+  // Since mgr_id is available from useUser.js, no need to fetch from Supabase again
+  const applicationData = {
+    staff_id: formData.value.staff_id,
+    mgr_id: mgr_id.value,  // Use the manager ID from useUser.js
+    wfh_date: format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'), //got to reformat the date if not will have timezone issue
+    approval: 0, // Default approval status is pending
+  };
+
+  const { error: applicationError } = await supabase
+    .from('applications')
+    .insert([applicationData]);
+
+  if (applicationError) {
+    // Check for duplicate key constraint error
+    if (applicationError.message.includes("duplicate key value violates unique constraint")) {
+      showDialog("You already have an existing request for this date.");
+    } else {
+      showDialog('Error submitting application: ' + applicationError.message);
+    }
+    } else {
       console.log(formData.value.wfh_date);
       console.log(format(new Date(formData.value.wfh_date), 'yyyy-MM-dd'));
       successDialog.value = true;

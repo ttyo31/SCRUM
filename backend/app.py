@@ -150,7 +150,7 @@ def get_applications_staff(staff_id):
     Returns existing WFH applications under a particular staff ID
     '''
     try:
-        # Fetch applications for the given staff
+        # Fetch pending applications for the given staff
         response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
 
         if not response.data:
@@ -161,7 +161,7 @@ def get_applications_staff(staff_id):
         # Create a set of unique mgr IDs
         mgr_ids = {app['mgr_id'] for app in applications}
 
-        # Query employee table for manager names
+        # Query employee table for mgr names
         manager_response = supabase.table('employee')\
             .select("staff_id, staff_fname, staff_lname")\
             .in_("staff_id", list(mgr_ids))\
@@ -178,36 +178,29 @@ def get_applications_staff(staff_id):
 
         # Combine employee names into a dictionary
         manager_data = {emp['staff_id']: f"{emp['staff_fname']} {emp['staff_lname']}" for emp in manager_response.data}
-
-        # Extract the staff's name
         staff_name = f"{staff_response.data[0]['staff_fname']} {staff_response.data[0]['staff_lname']}"
 
         # Filter applications based on date_of_application
         current_date = datetime.now(timezone.utc).date()  # Current date in UTC
         filtered_applications = []
 
-        # Merge names into applications data and apply date filter
         for app in applications:
-            try:
-                date_of_application = datetime.strptime(app['date_of_application'], "%Y-%m-%d").date()
-                days_diff = (current_date - date_of_application).days
-                print(f"Current date: {current_date}, Date of Application: {date_of_application}, Days Difference: {days_diff}")
+            date_of_application = datetime.strptime(app['date_of_application'], "%Y-%m-%d").date()
+            days_difference = (current_date - date_of_application).days
+            if days_difference <= 14:
+                # Merge names into applications data
+                app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
+                app['staff_id'] = f"{staff_id} ({staff_name})"
+                filtered_applications.append(app)
 
-                if days_diff <= 14:
-                    # Update the application data with names
-                    app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
-                    app['staff_id'] = f"{staff_id} ({staff_name})"
-                    # Add to filtered list
-                    filtered_applications.append(app)
-                    
-            except ValueError:
-                print(f"Invalid date format in date_of_application: {app['date_of_application']}")
-                continue  # Skip entries with invalid date format
+        # Debugging: Print the final filtered applications list        
+        print("Number of Filtered Applications:", len(filtered_applications))
 
         return jsonify(filtered_applications), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 

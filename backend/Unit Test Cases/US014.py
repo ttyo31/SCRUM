@@ -1,4 +1,3 @@
-#US14 staff checking application status
 import sys
 import os
 import unittest
@@ -40,7 +39,6 @@ class TestWFHApplicationStatus(unittest.TestCase):
             MagicMock(data=mock_staff_response)  # For staff query
         ]
         
-        #the issue was that mock_supabase isnt following the correct query chain e.g We need to make sure the mock for supabase matches the exact chain of method calls in your application when it queries the manager data (.in_()).
         # Mock the manager query using in_() for mgr_ids
         mock_supabase.table.return_value.select.return_value.in_.return_value.execute.return_value = MagicMock(data=mock_manager_response)
 
@@ -48,20 +46,60 @@ class TestWFHApplicationStatus(unittest.TestCase):
         response = self.app.get('/api/WFHapplicationsStaff/140003')
         data = response.get_json()
 
-        # Debugging print to see what data looks like after mock
-        print("Response Data After Mock:", data)
-
         # Assertions
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 3)
-
-        # Assert that manager names are being correctly merged
         self.assertEqual(data[0]['mgr_id'], '140894 (Rahim Khalid)')
         self.assertEqual(data[0]['staff_id'], '140003 (Janice Chan)')
         self.assertEqual(data[0]['wfh_date'], '2024-09-05')
-        
+
+    @patch('app.supabase')
+    def test_no_applications_found(self, mock_supabase):
+        # Mock empty applications data
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(data=[])
+
+        # Perform the API request
+        response = self.app.get('/api/WFHapplicationsStaff/140003')
+        data = response.get_json()
+
+        # Assertions
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data, {"error": "No pending applications found"})
+
+    @patch('app.supabase')
+    def test_no_employee_data_found(self, mock_supabase):
+        # Mock applications data with results but no employee data
+        mock_applications = [
+            {'staff_id': 140003, 'mgr_id': 140894, 'approval': 1, 'wfh_date': '2024-09-05'}
+        ]
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.side_effect = [
+            MagicMock(data=mock_applications),  # For applications query
+            MagicMock(data=[])  # For staff query returning empty data
+        ]
+        # Mock empty manager data response
+        mock_supabase.table.return_value.select.return_value.in_.return_value.execute.return_value = MagicMock(data=[])
+
+        # Perform the API request
+        response = self.app.get('/api/WFHapplicationsStaff/140003')
+        data = response.get_json()
+
+        # Assertions
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data, {"error": "No employee data found"})
+
+    @patch('app.supabase')
+    def test_internal_server_error(self, mock_supabase):
+        # Simulate an exception in supabase query
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.side_effect = Exception("Database error")
+
+        # Perform the API request
+        response = self.app.get('/api/WFHapplicationsStaff/140003')
+        data = response.get_json()
+
+        # Assertions
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(data, {"error": "Database error"})
 
 if __name__ == '__main__':
     unittest.main()
-

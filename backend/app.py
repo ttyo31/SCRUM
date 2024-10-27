@@ -7,6 +7,8 @@ from flask_cors import CORS
 from flask import Flask, jsonify, request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
+from datetime import datetime, timezone
+
 # Load environment variables
 from flask_mail import Mail, Message
 import requests
@@ -142,14 +144,13 @@ def get_applications_manager(mgr_id):
         return jsonify({"error": str(e)}), 500
 
 
-
 @app.route('/api/WFHapplicationsStaff/<staff_id>', methods=['GET'])
 def get_applications_staff(staff_id):
     '''
     Returns existing WFH applications under a particular staff ID
     '''
     try:
-        # Fetch pending applications for the given staff
+        # Fetch applications for the given staff
         response = supabase.table('applications').select("*").eq("staff_id", staff_id).execute()
 
         if not response.data:
@@ -157,15 +158,15 @@ def get_applications_staff(staff_id):
 
         applications = response.data
         
-        # Create a set of unique mgr IDs and
+        # Create a set of unique mgr IDs
         mgr_ids = {app['mgr_id'] for app in applications}
 
-        # Query employee table for mgr names
+        # Query employee table for manager names
         manager_response = supabase.table('employee')\
             .select("staff_id, staff_fname, staff_lname")\
             .in_("staff_id", list(mgr_ids))\
             .execute()
-
+        
         # Query employee table for staff names
         staff_response = supabase.table('employee')\
             .select("staff_id, staff_fname, staff_lname")\
@@ -181,15 +182,33 @@ def get_applications_staff(staff_id):
         # Extract the staff's name
         staff_name = f"{staff_response.data[0]['staff_fname']} {staff_response.data[0]['staff_lname']}"
 
-        # Merge names into applications data
-        for app in applications:
-            app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
-            app['staff_id'] = f"{staff_id} ({staff_name})"  # Same staff for all applications in this context
+        # Filter applications based on date_of_application
+        current_date = datetime.now(timezone.utc).date()  # Current date in UTC
+        filtered_applications = []
 
-        return jsonify(applications), 200
+        # Merge names into applications data and apply date filter
+        for app in applications:
+            try:
+                date_of_application = datetime.strptime(app['date_of_application'], "%Y-%m-%d").date()
+                days_diff = (current_date - date_of_application).days
+                print(f"Current date: {current_date}, Date of Application: {date_of_application}, Days Difference: {days_diff}")
+
+                if days_diff <= 14:
+                    # Update the application data with names
+                    app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
+                    app['staff_id'] = f"{staff_id} ({staff_name})"
+                    # Add to filtered list
+                    filtered_applications.append(app)
+                    
+            except ValueError:
+                print(f"Invalid date format in date_of_application: {app['date_of_application']}")
+                continue  # Skip entries with invalid date format
+
+        return jsonify(filtered_applications), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/api/approve_application', methods=['POST'])

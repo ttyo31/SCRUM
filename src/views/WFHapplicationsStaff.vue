@@ -18,11 +18,13 @@
               {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
             </span>
           </td>
+          <td>{{ item.date_of_application }}</td>
           <!-- Display the manager name with the ID -->
           <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
           <!-- Display the staff name with the ID -->
           <td>{{ item.staff_id }} {{ item.staff_name }}</td>
           <td>{{ item.wfh_date }}</td>
+          
 
           <td>
             <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)" class="remove">
@@ -98,7 +100,6 @@ import { ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
 
 const items = ref([]);
-
 const modalVisible = ref(false);  // Controls the visibility of the modal
 const modalTitle = ref("");       // Title for the modal 
 const modalMessage = ref("");     // Message for the modal
@@ -106,10 +107,11 @@ const loading = ref(true);  // Add loading state
 
 
 // const headers = [
+//   { text: 'Approval', value: 'approval' },
+//   { text: 'Date_of_application', value: 'date_of_application' },
 //   { text: 'Mgr_id', value: 'mgr_id' },
 //   { text: 'Staff_id', value: 'staff_id' },
 //   { text: 'Wfh_date', value: 'wfh_date' },
-//   { text: 'Approval', value: 'approval' }
 // ];
 
 const { id, mail } = useUser();

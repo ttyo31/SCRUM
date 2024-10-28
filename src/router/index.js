@@ -61,17 +61,18 @@ const router = createRouter({
 // Global beforeEach guard to check authentication
 router.beforeEach(async (to, from, next) => {
   const { data: { user }, error } = await supabase.auth.getUser(); // Check if user is authenticated
-  
-  console.log("logging in ", user); 
 
-  console.log(error); // nice so error is the main one to catch 
+  console.log("logging in ", user);
+  console.log(error); // Error handling for debugging
 
-  // woahh finally this works woohoo
-  if (to.matched.some(record => record.meta.requiresAuth) && error) {
+  if (user && to.path === '/') {
+    // Redirect authenticated users from login page to home
+    next({ path: '/home' });
+  } else if (to.matched.some(record => record.meta.requiresAuth) && error) {
     // If route requires auth and user is not authenticated, redirect to login
     next({ path: '/' });
   } else {
-    next(); 
+    next();
   }
 });
 

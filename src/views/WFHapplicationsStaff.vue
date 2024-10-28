@@ -11,6 +11,13 @@
       <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr class="hover-row">
+
+          <td>{{ item.date_of_application }}</td>
+          <!-- Display the manager name with the ID -->
+          <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
+          <!-- Display the staff name with the ID -->
+          <td>{{ item.staff_id }} {{ item.staff_name }}</td>
+          <td>{{ item.wfh_date }}</td>
           <td>
             <span :style="{
               color: item.approval === 1 ? 'green' : item.approval === 2 ? 'red' : 'orange'
@@ -18,12 +25,6 @@
               {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
             </span>
           </td>
-          <td>{{ item.date_of_application }}</td>
-          <!-- Display the manager name with the ID -->
-          <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
-          <!-- Display the staff name with the ID -->
-          <td>{{ item.staff_id }} {{ item.staff_name }}</td>
-          <td>{{ item.wfh_date }}</td>
           
 
           <td>

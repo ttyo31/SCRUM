@@ -1,6 +1,6 @@
 <template>
   <v-toolbar color="primary">
-    <v-toolbar-title class="text-white">WFH SYSTEM</v-toolbar-title>
+    <v-toolbar-title class="text-white" @click="router.push('/')">WFH SYSTEM</v-toolbar-title>
     
     <v-tabs v-model="tab" class="ml-auto" background-color="transparent" slider-color="white">
       <router-link to="/home">
@@ -110,7 +110,8 @@ const router = useRouter();
 // Function to handle logging out
 const logOut = () => {
   clearUserData(); // Clear the user data from localStorage
-  router.push('/'); // Redirect the user to the login page
+  supabase.auth.signOut(); // Log the user out
+  router.push('/'); // Redirect to login page
 };
 
 // Fetch notifications from Supabase

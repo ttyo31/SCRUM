@@ -2,26 +2,24 @@
   <div class="about">
     <v-row class="fill-height">
       <v-col>
-        <div style="display: flex; justify-content: flex-end; align-items: center; width: 100%;">
-          <div style="max-width: 300px; margin-right: 20px; margin-top: 40px;">
-            <v-select v-model="viewType" :items="viewTypes" label="Select View Type" outlined variant="outlined"
-              dense></v-select>
-          </div>
+        <div style="position: absolute; display: flex; justify-content: flex-end; align-items: center; width: 100%;">
+            <v-select class="mt-4 me-2 w-50" v-model="viewType" :items="viewTypes" label="Select View Mode" outlined variant="outlined"
+              dense style="max-width: 200px"></v-select>
         </div>
 
         <!-- Display loading spinner while fetching data -->
         <v-sheet height="600" class="mt-4">
-          <div v-if="!calendarReady" class="d-flex justify-center align-center">
+          <div id="loading" v-if="!calendarReady" class="d-flex justify-center align-center">
             <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
           </div>
 
           <template v-else>
             <template v-if="viewType === 'Calendar'">
-              <v-calendar ref="calendar" v-model="today" :events="filteredEvents" color="primary"
+              <v-calendar id="calendar" ref="calendar" v-model="today" :events="filteredEvents" color="primary"
                 type="month"></v-calendar>
             </template>
             <template v-else>
-              <div style="display: flex; flex-direction: column; align-items: center;">
+              <div id="dashboard" style="display: flex; flex-direction: column; align-items: center;">
                 <v-text-field v-model="searchQuery" label="Search Team Member" class="mt-4 w-50" outlined dense
                   style="max-width: 300px" />
                 <v-simple-table class="elevation-1">
@@ -170,5 +168,16 @@ export default {
 .black-button:hover {
   background-color: black;
   color: white;
+}
+
+#loading {
+  margin-top: 50vh;
+}
+
+@media (max-width: 1200px) {
+  #dashboard, #calendar{
+    margin-top: 100px;
+  }
+
 }
 </style>

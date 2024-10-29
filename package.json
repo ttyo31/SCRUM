@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@flaticon/flaticon-uicons": "^3.3.1",
     "@mdi/font": "5.9.55",
     "@supabase/supabase-js": "^2.45.4",
     "ant-design-vue": "^4.2.5",

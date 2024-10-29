@@ -5,24 +5,35 @@
         <v-col class="light-blue">
           <!-- Overview Cards -->
           <v-row style="padding: 0%;">
-            <v-col :cols="isUserValid ? 8 : 12" :class="{ 'text-center': !isUserValid }">
-              <v-card class="white pa-4">
+            <v-col :cols="12">
+              <v-card class="white pa-4 text-center">
                 <v-card-title class="text-blue responsive-title" style="font-size: 100px;">
-                  Welcome, <br/> {{ fname }} {{ lname }}
+                  Welcome, <br /> {{ fname }} {{ lname }}
                 </v-card-title>
                 <v-card-subtitle class="text-blue" style="font-size: 30px;">
                   Today's date is {{ formattedDate }}
                 </v-card-subtitle>
+                <div class="go-somewhere__grid p-5 pb-0 mt-5">
+                  <div class="go-somewhere__item" @click="this.$router.push('/myschedule')">
+                    <i class="fi fi-rr-clock-time-tracking"></i>
+                                        Own Schedule
+                  </div>
+                  <div class="go-somewhere__item" @click="this.$router.push('/TeamSchedule')">
+                    <i class="fi fi-rs-employees"></i>
+                    Team Schedule
+                  </div>
+                  <div vv-if="role == '1' || role == '3'" class="go-somewhere__item" @click="this.$router.push('/OverallSchedule')">
+                    <i class="fi fi-rr-corporate"></i>
+                    Overall Schedule
+                  </div>
+                  <div v-if="id !== '130002'" class="go-somewhere__item" @click="this.$router.push('/WFHrequestForm')">
+                    <i class="fi fi-rr-edit"></i>
+                    WFH Request
+                  </div>
+                </div>
                 <v-card-subtitle class="text-blue quote">
                   "{{ dailyQuote }}"
                 </v-card-subtitle>
-              </v-card>
-            </v-col>
-            <!-- Conditionally render based on userId -->
-            <v-col :cols="isUserValid ? 4 : 12" :md="4" style="padding-top: 0%;">
-              <v-card class="white pa-4" v-if="isUserValid">
-                <!-- Using WFHrequestForm component here -->
-                <WFHrequestForm />
               </v-card>
             </v-col>
           </v-row>
@@ -35,17 +46,13 @@
 <script>
 import { defineComponent, ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
-import WFHrequestForm from './WFHrequestForm.vue'; // Correct import statement
+import '../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 
 export default defineComponent({
   name: 'HomeView',
 
-  components: {
-    WFHrequestForm, // Register the component
-  },
-
   setup() {
-    const { fname, lname, id } = useUser();
+    const { fname, lname, id, role } = useUser(); // Define id here
     const isUserValid = ref(false);
     const formattedDate = ref('');
     const dailyQuote = ref('');
@@ -62,14 +69,10 @@ export default defineComponent({
     ];
 
     onMounted(() => {
-      // Check userId when component is mounted
-      isUserValid.value = id.value !== '130002';
-
-      // Format today's date
       const today = new Date();
-      formattedDate.value = today.toLocaleDateString(); // You can customize the format if needed
+      formattedDate.value = today.toLocaleDateString(); // Format date
 
-      // Get a daily quote based on the current date
+      // Generate daily quote
       const todayString = today.toDateString();
       const hash = Array.from(todayString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
       dailyQuote.value = quotes[hash % quotes.length];
@@ -78,6 +81,8 @@ export default defineComponent({
     return {
       fname,
       lname,
+      id, // Return id for use in template
+      role,
       isUserValid,
       formattedDate,
       dailyQuote,
@@ -98,9 +103,57 @@ export default defineComponent({
 }
 
 .responsive-title {
-  font-size: calc(100px - 1vw); 
-  white-space: normal;          
-  word-break: break-word;       
-  overflow-wrap: break-word;    
+  font-size: calc(100px - 1vw);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.go-somewhere__grid {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 0px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.go-somewhere__item {
+  background-color: rgb(33, 150, 243);
+  width: 200px;
+  border-radius: 50px;
+  padding: 30px;
+  margin: 10px;
+  margin-top: 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.go-somewhere__item i {
+  font-size: 80px;
+  color: #313131;
+}
+
+.go-somewhere__item:hover {
+  transform: scale(1.05);
+}
+
+.go-somewhere__icon img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+
+.go-somewhere__text p {
+  font-size: 1rem;
+  color: #bbb;
+  text-transform: capitalize;
+}
+
+.go-somewhere {
+  text-align: center;
+  padding: 2rem;
+  padding-top: 100px;
+  color: #fff;
 }
 </style>

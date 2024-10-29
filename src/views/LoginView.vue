@@ -81,6 +81,7 @@ const onFinish = async () => {
     await fetchStaffDetails(data.user.email); 
     // Route to the homepage
     router.push('/home');
+    location.reload()
   } else if (error) {
     console.error('Login error:', error.message);
     // Show the error dialog

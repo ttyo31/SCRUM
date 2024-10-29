@@ -7,8 +7,8 @@
           <v-row style="padding: 0%;">
             <v-col :cols="isUserValid ? 8 : 12" :class="{ 'text-center': !isUserValid }">
               <v-card class="white pa-4">
-                <v-card-title class="text-blue" style="font-size: 100px;">
-                  Welcome, {{ fname }} {{ lname }}
+                <v-card-title class="text-blue responsive-title" style="font-size: 100px;">
+                  Welcome, <br/> {{ fname }} {{ lname }}
                 </v-card-title>
                 <v-card-subtitle class="text-blue" style="font-size: 30px;">
                   Today's date is {{ formattedDate }}
@@ -20,7 +20,7 @@
             </v-col>
             <!-- Conditionally render based on userId -->
             <v-col :cols="isUserValid ? 4 : 12" :md="4" style="padding-top: 0%;">
-              <v-card class="white pa-4">
+              <v-card class="white pa-4" v-if="isUserValid">
                 <!-- Using WFHrequestForm component here -->
                 <WFHrequestForm />
               </v-card>
@@ -93,7 +93,14 @@ export default defineComponent({
 }
 
 .quote {
-  margin-top: 210px;
+  margin-top: 160px;
   font-size: 20px;
+}
+
+.responsive-title {
+  font-size: calc(100px - 1vw); 
+  white-space: normal;          
+  word-break: break-word;       
+  overflow-wrap: break-word;    
 }
 </style>

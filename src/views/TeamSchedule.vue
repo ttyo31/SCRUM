@@ -3,11 +3,10 @@
     <v-row class="fill-height">
       <v-col>
         <div style="position: absolute; display: flex; justify-content: flex-end; align-items: center; width: 100%;">
-            <v-select class="mt-4 me-2 w-50" v-model="viewType" :items="viewTypes" label="Select View Mode" outlined variant="outlined"
-              dense style="max-width: 200px"></v-select>
+          <v-select class="mt-4 me-2 w-50" v-model="viewType" :items="viewTypes" label="Select View Mode" outlined variant="outlined"
+            dense style="max-width: 200px"></v-select>
         </div>
 
-        <!-- Display loading spinner while fetching data -->
         <v-sheet height="600" class="mt-4">
           <div id="loading" v-if="!calendarReady" class="d-flex justify-center align-center">
             <v-progress-circular indeterminate color="primary" size="70"></v-progress-circular>
@@ -15,7 +14,7 @@
 
           <template v-else>
             <template v-if="viewType === 'Calendar'">
-              <v-calendar id="calendar" ref="calendar" v-model="today" :events="filteredEvents" color="primary"
+              <v-calendar id="calendar" ref="calendar" v-model="today" :events="events" color="primary"
                 type="month"></v-calendar>
             </template>
             <template v-else>
@@ -56,7 +55,6 @@
   </div>
 </template>
 
-
 <script>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
@@ -94,30 +92,30 @@ export default {
         const eventsResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_wfh_events`);
         const employeesResponse = await axios.get(`https://scrum-backend.vercel.app/api/all_employees`);
 
-        // Assuming dept.value is defined and available
         events.value = eventsResponse.data
-          .filter(event => event.dept === dept.value) // Only include events where dept matches dept.value
+          .filter(event => event.dept === dept.value)
           .map(event => ({
             title: `${event.fname} ${event.lname}`,
             start: new Date(event.wfh_date),
+            end: new Date(event.wfh_date),
             empId: event.empId,
             location: event.location,
+            color: 'primary'
           }));
 
         employees.value = employeesResponse.data
-          .filter(employees => employees.dept === dept.value)
+          .filter(employee => employee.dept === dept.value)
           .map(employee => ({
             id: employee.id,
             name: `${employee.fname} ${employee.lname}`,
           }));
 
-        calendarReady.value = true; // Set calendar ready after data is successfully fetched
+        calendarReady.value = true;
       } catch (error) {
         console.error('Error fetching data:', error);
         calendarReady.value = false;
       }
     }
-
 
     const filteredEmployees = computed(() => {
       return employees.value.filter(employee =>
@@ -139,6 +137,7 @@ export default {
 
     return {
       today,
+      events,
       viewType,
       viewTypes,
       searchQuery,
@@ -175,9 +174,8 @@ export default {
 }
 
 @media (max-width: 1200px) {
-  #dashboard, #calendar{
+  #dashboard, #calendar {
     margin-top: 100px;
   }
-
 }
 </style>

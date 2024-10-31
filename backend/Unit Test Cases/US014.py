@@ -60,8 +60,8 @@ class TestWFHApplicationStatus(unittest.TestCase):
         
         # Only applications within 14 days or exactly on the 14-day boundary should be returned
         self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]['mgr_id'], '140894 (Rahim Khalid)')
-        self.assertEqual(data[0]['staff_id'], '140003 (Janice Chan)')
+        self.assertEqual(data[0]['mgr_id'], 'Rahim Khalid')
+        self.assertEqual(data[0]['staff_id'], 'Janice Chan')
         self.assertEqual(data[0]['wfh_date'], '2024-09-05')
 
     @patch('app.supabase')

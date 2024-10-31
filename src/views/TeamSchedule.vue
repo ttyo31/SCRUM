@@ -170,7 +170,7 @@ export default {
 }
 
 #loading {
-  margin-top: 50vh;
+  margin-top: 40vh;
 }
 
 @media (max-width: 1200px) {

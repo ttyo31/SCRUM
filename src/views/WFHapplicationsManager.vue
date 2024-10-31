@@ -17,7 +17,7 @@
       <!-- Custom row template -->
       <template v-slot:item="{ item }">
         <tr>
-          <td>{{ item.approval }}</td>
+          <!-- <td>{{ item.approval }}</td> -->
           <!-- Display the manager name with the ID -->
           <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
           <!-- Display the staff name with the ID -->
@@ -65,6 +65,7 @@ const loading = ref(true);  // Add loading state
 const modalVisible = ref(false);  // Controls the visibility of the modal
 const modalTitle = ref("");       // Title for the modal (e.g., Approved/Rejected)
 const modalMessage = ref("");     // Message for the modal (e.g., Your request has been approved/rejected)
+const headers =[{title: "Approving Manager"}, {title: "Requester"}, {title: "WFH Date"}, {title: "Action"}]
 
 function sendmail(){
  const url = "https://scrumbackend.vercel.app/api/send-email"
@@ -183,4 +184,13 @@ onMounted(() => {
   fetchApplications(mgr_id);
 });
 </script>
+
+<style scoped>
+.v-btn {
+  border-radius: 30px;
+  margin-right: 5px;
+
+}
+
+</style>
 

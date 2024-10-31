@@ -132,10 +132,10 @@ def get_applications_manager(mgr_id):
 
         for app in applications:
             # Update staff_id to "id (name)"
-            app['staff_id'] = f"{app['staff_id']} ({staff_data.get(app['staff_id'], 'Unknown')})"
+            app['staff_id'] = f"{staff_data.get(app['staff_id'], 'Unknown')}"
     
             # Update mgr_id to "id (name)"
-            app['mgr_id'] = f"{mgr_id} ({manager_name})"
+            app['mgr_id'] = f"{manager_name}"
 
         
         return jsonify(applications), 200
@@ -189,8 +189,8 @@ def get_applications_staff(staff_id):
             days_difference = (current_date - date_of_application).days
             if days_difference <= 14:
                 # Merge names into applications data
-                app['mgr_id'] = f"{app['mgr_id']} ({manager_data.get(app['mgr_id'], 'Unknown')})"
-                app['staff_id'] = f"{staff_id} ({staff_name})"
+                app['mgr_id'] = f"{manager_data.get(app['mgr_id'], 'Unknown')}"
+                app['staff_id'] = f"{staff_name}"
                 filtered_applications.append(app)
 
         # Debugging: Print the final filtered applications list        

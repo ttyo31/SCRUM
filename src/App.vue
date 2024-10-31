@@ -2,7 +2,9 @@
   <v-app>
     <v-main>
       <!-- Conditionally show Navbar only when not on the login page -->
-      <Navbar v-if="showNavbar" />
+      <Navbar 
+      v-if="showNavbar"
+      :class="{ 'sticky-navbar': true }" />
       <router-view />  
 
       <!-- Inactivity Warning Dialog -->
@@ -114,5 +116,11 @@ export default {
 <style scoped>
 .v-dialog {
   text-align: center;
+}
+
+.sticky-navbar {
+  position: sticky;
+  top: 0; 
+  z-index: 1000; 
 }
 </style>

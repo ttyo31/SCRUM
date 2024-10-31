@@ -14,9 +14,9 @@
 
           <td>{{ item.date_of_application }}</td>
           <!-- Display the manager name with the ID -->
-          <td>{{ item.mgr_id }} {{ item.manager_name }}</td>
+          <td>{{ item.mgr_id }}</td>
           <!-- Display the staff name with the ID -->
-          <td>{{ item.staff_id }} {{ item.staff_name }}</td>
+          <td>{{ item.staff_id }}</td>
           <td>{{ item.wfh_date }}</td>
           <td>
             <span :style="{
@@ -25,16 +25,16 @@
               {{ item.approval === 1 ? 'Approved' : item.approval === 2 ? 'Rejected' : 'Pending' }}
             </span>
           </td>
-          
+
 
           <td>
-            <button v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)" class="remove">
-              Remove Work From Home
-            </button>
-            <button v-else-if="item.approval === 0" @click="withdraw_application(item.wfh_date, item.staff_id)"
-              class="withdraw">
-              Withdraw Application
-            </button>
+            <v-btn color="warning" v-if="item.approval === 1" @click="removeWfh(item.wfh_date, item.staff_id)">
+              Withdraw
+            </v-btn>
+            <v-btn color="warning" v-else-if="item.approval === 0"
+              @click="withdraw_application(item.wfh_date, item.staff_id)" class="withdraw">
+              Withdraw
+            </v-btn>
           </td>
 
         </tr>
@@ -67,53 +67,16 @@
   </v-card>
 </template>
 
-<style scoped>
-button {
-  padding: 8px;
-  margin: 8px;
-}
-
-.remove:hover {
-  background-color: rgba(255, 0, 0, 0.4);
-  border: solid 2px rgba(135, 206, 250, 0.1);
-}
-
-.remove {
-  border: solid 2px red;
-}
-
-.withdraw {
-  border: solid 2px orange;
-}
-
-.withdraw:hover {
-  background-color: rgba(255, 165, 0, 0.5);
-  border: solid 2px rgba(135, 206, 250, 0.1);
-}
-
-.hover-row:hover {
-  background-color: rgba(135, 206, 250, 0.1);
-}
-</style>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import useUser from '../utils/useUser';
 
+const headers = [{ title: 'Application Date' }, { title: 'Approving Manager' }, { title: 'Requester' }, { title: 'WFH Date' }, { title: 'Status' }, { title: 'Action' }]
 const items = ref([]);
 const modalVisible = ref(false);  // Controls the visibility of the modal
 const modalTitle = ref("");       // Title for the modal 
 const modalMessage = ref("");     // Message for the modal
 const loading = ref(true);  // Add loading state
-
-
-// const headers = [
-//   { text: 'Approval', value: 'approval' },
-//   { text: 'Date_of_application', value: 'date_of_application' },
-//   { text: 'Mgr_id', value: 'mgr_id' },
-//   { text: 'Staff_id', value: 'staff_id' },
-//   { text: 'Wfh_date', value: 'wfh_date' },
-// ];
 
 const { id, mail } = useUser();
 
@@ -148,6 +111,7 @@ async function fetchApplications(staff_id) {
   try {
     items.value = [];
     const response = await fetch(`https://scrum-backend.vercel.app/api/WFHapplicationsStaff/${staff_id}`);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -254,3 +218,27 @@ onMounted(() => {
 
 
 </script>
+
+<style scoped>
+.v-btn {
+  border-radius: 30px;
+}
+
+.remove:hover {
+  background-color: rgba(255, 0, 0, 0.4);
+  border: solid 2px rgba(135, 206, 250, 0.1);
+}
+
+.remove {
+  border: solid 2px red;
+}
+
+.withdraw:hover {
+  background-color: rgba(255, 165, 0, 0.5);
+  border: solid 2px rgba(135, 206, 250, 0.1);
+}
+
+.hover-row:hover {
+  background-color: rgba(135, 206, 250, 0.1);
+}
+</style>

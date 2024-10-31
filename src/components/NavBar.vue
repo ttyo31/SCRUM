@@ -49,7 +49,7 @@
           </v-list-item>
           <v-list-item v-if="id != '130002'">
             <router-link to="/WFHapplicationsStaff">
-              <v-list-item-title>Staff Application Summary</v-list-item-title>
+              <v-list-item-title>My Applications</v-list-item-title>
             </router-link>
           </v-list-item>
         </v-list>

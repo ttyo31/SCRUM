@@ -33,6 +33,10 @@
             v-bind="props"
           >
             WFH Application
+            <!-- Dropdown Indicator Icon -->
+            <v-icon class="ml-1">
+              {{ dropdownVisible ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+            </v-icon>
           </v-tab>
         </template>
         

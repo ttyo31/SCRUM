@@ -1,5 +1,9 @@
 # scrum-proj
 
+## Welcome to WFH System
+A comprehensive solution for Work From Home (WFH) applications
+<br/> The website can be accessed here: https://scrum-ten.vercel.app/
+
 ## Project setup
 ```
 npm install
@@ -8,6 +12,11 @@ npm install
 ### Compiles and hot-reloads for development
 ```
 npm run serve
+```
+### Start the backend server 
+```
+cd backend
+flask run
 ```
 
 ### Compiles and minifies for production

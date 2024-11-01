@@ -42,14 +42,14 @@
               <v-list-item-title>Request Form</v-list-item-title>
             </router-link>
           </v-list-item>
-          <v-list-item v-if="role == 1 || role == 3">
-            <router-link to="/WFHapplicationsManager">
-              <v-list-item-title>Manager Application Summary</v-list-item-title>
-            </router-link>
-          </v-list-item>
           <v-list-item v-if="id != '130002'">
             <router-link to="/WFHapplicationsStaff">
               <v-list-item-title>My Applications</v-list-item-title>
+            </router-link>
+          </v-list-item>
+          <v-list-item v-if="role == 1 || role == 3">
+            <router-link to="/WFHapplicationsManager">
+              <v-list-item-title>Review Employees' Requests</v-list-item-title>
             </router-link>
           </v-list-item>
         </v-list>

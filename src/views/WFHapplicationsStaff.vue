@@ -3,7 +3,7 @@
     <v-data-table v-if="!loading" :items="items" :headers="headers" class="elevation-1" :items-per-page="5">
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Staff Applications List</v-toolbar-title>
+          <v-toolbar-title>My Applications</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
         </v-toolbar>
       </template>

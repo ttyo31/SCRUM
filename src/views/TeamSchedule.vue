@@ -2,7 +2,7 @@
   <div class="about">
     <v-row class="fill-height">
       <v-col>
-        <div style="position: absolute; display: flex; justify-content: flex-end; align-items: center; width: 100%;">
+        <div style="padding:10px; position: absolute; display: flex; justify-content: flex-end; align-items: center; width: 100%;">
           <v-select class="mt-4 me-2 w-50" v-model="viewType" :items="viewTypes" label="Select View Mode" outlined variant="outlined"
             dense style="max-width: 200px"></v-select>
         </div>
@@ -15,7 +15,7 @@
           <template v-else>
             <template v-if="viewType === 'Calendar'">
               <v-calendar id="calendar" ref="calendar" v-model="today" :events="events" color="primary"
-                type="month"></v-calendar>
+                type="month" style="padding: 10px; padding-top: 20px;"></v-calendar>
             </template>
             <template v-else>
               <div id="dashboard" style="display: flex; flex-direction: column; align-items: center;">

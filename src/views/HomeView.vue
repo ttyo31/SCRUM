@@ -22,7 +22,7 @@
                     <i class="fi fi-rs-employees"></i>
                     Team Schedule
                   </div>
-                  <div vv-if="role == '1' || role == '3'" class="go-somewhere__item" @click="this.$router.push('/OverallSchedule')">
+                  <div v-if="role == '1'" class="go-somewhere__item" @click="this.$router.push('/OverallSchedule')">
                     <i class="fi fi-rr-corporate"></i>
                     Overall Schedule
                   </div>
